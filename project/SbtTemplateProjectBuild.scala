@@ -20,6 +20,7 @@ object SbtTemplateProjectBuild extends Build {
         Libraries.jodaTime,
         Libraries.shapeless,
         Libraries.openCSV
+        //Libraries.scalaReflect
         // Add your additional libraries here (comma-separated)...
       )
     )

@@ -4,6 +4,7 @@ import shapeless._
 
 import scala.annotation.tailrec
 import scala.io.Source
+import scala.reflect.runtime.universe.TypeTag
 import scala.util.{Failure, Success, Try}
 
 /**
@@ -18,7 +19,7 @@ object CSVParser extends App {
 
   object CSVRowParser {
     implicit def all[A, H <: HList](implicit gen: Generic.Aux[A, H],
-                                    read: CSVRowReader[H]): CSVRowParser[A] = new CSVRowParser[A] {
+      read: CSVRowReader[H]): CSVRowParser[A] = new CSVRowParser[A] {
       def parse(row: Seq[String]): Try[A] = {
         read.from(row).map(gen.from)
       }
@@ -30,22 +31,24 @@ object CSVParser extends App {
   case class User(id: Int, firstName: String, lastName: String)
   case class Address(firstName: String, lastName: String, number: Int)
 
-  class CSVReader[A: CSVRowParser] {
-    val defaultParserCfg = CSVParserConfig(Comma)
-
+  class CSVReader[A: CSVRowParser](implicit tag: TypeTag[A]) {
     def parse(path: String): ReaderWithFile[A] = ReaderWithFile[A](path)
 
     object ReaderWithFile {
-      implicit def parser2parsed[B](parse: ReaderWithFile[B]): Seq[B] = parse using defaultParserCfg
+      // This implicit conversion will be applied for cases where the caller does not
+      // specify any parser configuration, so we resort to using a default which is a CSV file with
+      // comma separated!
+      implicit def parser2parsed[B](parse: ReaderWithFile[B]): Seq[B] = parse using CSVParserConfig(Comma)
     }
 
     // TODO: Recursively run through the lines and collect the errors if any!!
-    case class ReaderWithFile[B: CSVRowParser](path: String)(implicit val m: Manifest[B]) {
+    case class ReaderWithFile[B: CSVRowParser](path: String) {
       def using(cfg: CSVParserConfig): Seq[B] = {
         val lines = Source.fromFile(path).getLines()
 
         // even before we could pass our shit into the CSVRowParser, let's have a sanity check!!
-        println (m.typeArguments.size)
+        println (tag.getClass.getCanonicalName)
+        //println(implicitly[Typeable[B]].describe)
 
         @tailrec
         def tailRecursiveParse(acc: Seq[B], continue: Boolean): Seq[B] = {
@@ -75,7 +78,7 @@ object CSVParser extends App {
     }
   }
 
-  def apply[A: CSVRowParser] = new CSVReader[A]
+  def apply[A: CSVRowParser: TypeTag] = new CSVReader[A]
 
   val reader = apply[Address]
 
