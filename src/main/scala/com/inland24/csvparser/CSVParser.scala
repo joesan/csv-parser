@@ -4,7 +4,6 @@ import shapeless._
 
 import scala.annotation.tailrec
 import scala.io.Source
-import scala.reflect.runtime.universe.TypeTag
 import scala.util.{Failure, Success, Try}
 
 /**
@@ -31,7 +30,7 @@ object CSVParser extends App {
   case class User(id: Int, firstName: String, lastName: String)
   case class Address(firstName: String, lastName: String, number: Int)
 
-  class CSVReader[A: CSVRowParser](implicit tag: TypeTag[A]) {
+  class CSVReader[A: CSVParser.CSVRowParser] {
     def parse(path: String): ReaderWithFile[A] = ReaderWithFile[A](path)
 
     object ReaderWithFile {
@@ -78,7 +77,7 @@ object CSVParser extends App {
     }
   }
 
-  def apply[A: CSVRowParser: TypeTag] = new CSVReader[A]
+  def apply[A: CSVRowParser] = new CSVReader[A]
 
   val reader = apply[Address]
 
