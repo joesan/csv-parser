@@ -26,8 +26,6 @@ object CSVParser extends App {
       }
     }
     def apply[A](implicit ev: CSVRowParser[A]): CSVRowParser[A] = ev
-
-    //the[CSVRowReader[String :: DateTime :: Map[String, Double] :: HNil]]
   }
 
   // this is our case class that we will parse into
@@ -89,6 +87,10 @@ object CSVParser extends App {
       }
     }
   }
+
+  // TODO: remove this later...
+  implicit val seperator: Seperator = Comma
+  implicit val headers: Seq[String] = Seq("a", "b", "c")
 
   def apply[A: CSVRowParser] = new CSVReader[A]
 

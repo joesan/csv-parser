@@ -1,4 +1,4 @@
-import sbt._
+import sbt.{addCompilerPlugin, _}
 import Keys._
 
 object SbtTemplateProjectBuild extends Build {
@@ -24,4 +24,8 @@ object SbtTemplateProjectBuild extends Build {
         // Add your additional libraries here (comma-separated)...
       )
     )
+  .settings(
+    resolvers += Resolver.bintrayRepo("tek", "maven"),
+    addCompilerPlugin("tryp" %% "splain" % "0.1.22")
+  )
 }
