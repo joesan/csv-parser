@@ -18,6 +18,7 @@ object CSVParser extends App {
   }
 
   object CSVRowParser {
+
     implicit def all[A, H <: HList](implicit gen: Generic.Aux[A, H],
       read: CSVRowReader[H]): CSVRowParser[A] = new CSVRowParser[A] {
       def parse(row: Seq[String]): Try[A] = {
@@ -25,6 +26,8 @@ object CSVParser extends App {
       }
     }
     def apply[A](implicit ev: CSVRowParser[A]): CSVRowParser[A] = ev
+
+    //the[CSVRowReader[String :: DateTime :: Map[String, Double] :: HNil]]
   }
 
   // this is our case class that we will parse into
@@ -77,7 +80,7 @@ object CSVParser extends App {
             }
             // check if we have some more elements to parse
             if (lines.hasNext) tailRecursiveParse(newAcc, lines, continue = true)
-            else acc
+            else newAcc
           }
           else acc
         }
