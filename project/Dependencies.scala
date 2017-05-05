@@ -17,7 +17,7 @@ object Dependencies {
   object Libraries {
     val jodaTime             = "joda-time"          %  "joda-time"                 % Versions.jodaTime
     val log4j                = "log4j"              %  "log4j"                     % Versions.log4j
-    val openCSV              = "com.opencsv"        % "opencsv"                    % Versions.openCSV
+    val openCSV              = "com.opencsv"        %  "opencsv"                   % Versions.openCSV
     val shapeless            = "com.chuusai"        %% "shapeless"                 % Versions.shapeless
     val scalaReflect         = "org.scala-lang"     %% "scala-reflect"             % Versions.scalaReflect
   }

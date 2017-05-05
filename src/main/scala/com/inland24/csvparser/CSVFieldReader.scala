@@ -1,5 +1,7 @@
 package com.inland24.csvparser
 
+import org.joda.time.format.{PeriodFormatter, PeriodFormatterBuilder}
+
 import scala.util.{Success, Try}
 
 /**
@@ -32,4 +34,21 @@ object CSVFieldReader {
       case _           => Success(false) // I do not understand what else it could be, so falsify everything else!!
     }
   }
+
+  sealed trait TimeSeperator { def seperator: String }
+  case object ColonTimeSeperator extends TimeSeperator { val seperator = ":" }
+  case object HyphenTimeSeperator extends TimeSeperator { val seperator = "-" }
+
+  def timeHHmmCSVFieldConverter(t: TimeSeperator): CSVFieldReader[PeriodFormatter] = new CSVFieldReader[PeriodFormatter] {
+    def from(s: String): Try[PeriodFormatter] = Try {
+      new PeriodFormatterBuilder()
+        .appendHours()
+        .appendSeparator(t.seperator)
+        .appendMinutes()
+        .toFormatter
+    }
+  }
+
+  implicit def timeHHmmWithColonSeperator: CSVFieldReader[PeriodFormatter] = timeHHmmCSVFieldConverter(ColonTimeSeperator)
+  implicit def timeHHmmWithHyphenSeperator: CSVFieldReader[PeriodFormatter] = timeHHmmCSVFieldConverter(HyphenTimeSeperator)
 }

@@ -43,14 +43,13 @@ object CSVParser extends App {
     // TODO: Recursively run through the lines and collect the errors if any!!
     case class ReaderWithFile[B: CSVRowParser](path: String) {
       def using(cfg: CSVParserConfig): Seq[B] = {
-        val lines = Source.fromFile(path).getLines()
 
         // even before we could pass our shit into the CSVRowParser, let's have a sanity check!!
         println (tag.getClass.getCanonicalName)
         //println(implicitly[Typeable[B]].describe)
 
         @tailrec
-        def tailRecursiveParse(acc: Seq[B], continue: Boolean): Seq[B] = {
+        def tailRecursiveParse(acc: Seq[B], lines: Iterator[String], continue: Boolean): Seq[B] = {
           if (continue) {
 
             // we transform
@@ -66,13 +65,13 @@ object CSVParser extends App {
                 acc
             }
             // check if we have some more elements to parse
-            if (lines.hasNext) tailRecursiveParse(newAcc, continue = true)
+            if (lines.hasNext) tailRecursiveParse(newAcc, lines, continue = true)
             else acc
           }
           else acc
         }
 
-        tailRecursiveParse(Seq.empty[B], continue = true)
+        tailRecursiveParse(Seq.empty[B], Source.fromFile(path).getLines(), continue = true)
       }
     }
   }
