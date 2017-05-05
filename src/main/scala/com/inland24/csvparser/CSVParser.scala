@@ -1,5 +1,6 @@
 package com.inland24.csvparser
 
+import org.joda.time.DateTime
 import shapeless._
 
 import scala.annotation.tailrec
@@ -30,8 +31,12 @@ object CSVParser extends App {
   case class User(id: Int, firstName: String, lastName: String)
   case class Address(firstName: String, lastName: String, number: Int)
 
+  // for... [TODO: use proper interval format]
+  case class MeterData(meterId: String, dateTime: DateTime, meterReadings: Map[String, Double])
+
   class CSVReader[A: CSVParser.CSVRowParser] {
-    def parse(path: String): ReaderWithFile[A] = ReaderWithFile[A](path)
+    def parse(path: String): ReaderWithFile[A] = ReaderWithFile[A](Source.fromFile(path).getLines())
+    def parse(lines: Iterator[String]): ReaderWithFile[A] = ReaderWithFile[A](lines)
 
     object ReaderWithFile {
       // This implicit conversion will be applied for cases where the caller does not
@@ -41,8 +46,14 @@ object CSVParser extends App {
     }
 
     // TODO: Recursively run through the lines and collect the errors if any!!
-    case class ReaderWithFile[B: CSVRowParser](path: String) {
+    case class ReaderWithFile[B: CSVRowParser](lines: Iterator[String]) {
       def using(cfg: CSVParserConfig): Seq[B] = {
+
+        // let's set the implicit configurations in scope, these will be used by the CSVFieldReaders as needed
+        implicit val seperator: Seperator = cfg.seperator
+        if (lines.hasNext && cfg.withHeaders) {
+          implicit val headers: Seq[String] = lines.next.split(cfg.seperator.seperator).toList.map(_.trim)
+        }
 
         // even before we could pass our shit into the CSVRowParser, let's have a sanity check!!
         println (tag.getClass.getCanonicalName)
@@ -71,18 +82,21 @@ object CSVParser extends App {
           else acc
         }
 
-        tailRecursiveParse(Seq.empty[B], Source.fromFile(path).getLines(), continue = true)
+        tailRecursiveParse(Seq.empty[B], lines, continue = true)
       }
     }
   }
 
   def apply[A: CSVRowParser] = new CSVReader[A]
 
-  val reader = apply[Address]
+  val reader = apply[MeterData]
 
-  val withDefaultCfg: Seq[Address] = reader parse "/Users/jothi/Projects/Private/scala-projects/csv-parser/address.csv"
-  withDefaultCfg foreach println
+  val withDefaultCfg1: Seq[MeterData] = reader parse "/Users/jothi/Projects/Private/scala-projects/csv-parser/meter.csv"
+  withDefaultCfg1 foreach println
 
-  val withCustomConfig: Seq[Address] = reader parse "/Users/jothi/Projects/Private/scala-projects/csv-parser/address.csv" using CSVParserConfig(Pipe)
-  withCustomConfig foreach println
+  //val withDefaultCfg: Seq[Address] = reader parse "/Users/jothi/Projects/Private/scala-projects/csv-parser/address.csv"
+  //withDefaultCfg foreach println
+
+  //val withCustomConfig: Seq[Address] = reader parse "/Users/jothi/Projects/Private/scala-projects/csv-parser/address.csv" using CSVParserConfig(Pipe)
+  //withCustomConfig foreach println
 }

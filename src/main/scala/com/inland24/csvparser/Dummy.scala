@@ -1,5 +1,8 @@
 package com.inland24.csvparser
 
+import com.inland24.csvparser.CSVParser.{Address, CSVReader, CSVRowParser}
+import org.joda.time.format.PeriodFormatter
+
 import scala.io.Source
 
 /**
@@ -16,6 +19,13 @@ object Dummy extends App {
     x => x.split(",")
   )
 
+  case class MeterReading(timePeriodFormatter: PeriodFormatter, meterValue: Double)
+
+  def apply[A: CSVRowParser] = new CSVReader[A]
+
+  val reader = apply[Address]
+
+  val withDefaultCfg: Seq[Address] = reader parse remaining
 
   while (remaining.hasNext) {
     val next = remaining.next()

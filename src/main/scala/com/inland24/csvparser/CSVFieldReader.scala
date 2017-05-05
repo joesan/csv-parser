@@ -1,5 +1,7 @@
 package com.inland24.csvparser
 
+import com.inland24.csvparser.CSVParser.MeterData
+import org.joda.time.DateTime
 import org.joda.time.format.{PeriodFormatter, PeriodFormatterBuilder}
 
 import scala.util.{Success, Try}
@@ -28,10 +30,19 @@ object CSVFieldReader {
   }
 
   implicit def booleanCSVFieldConverter: CSVFieldReader[Boolean] = new CSVFieldReader[Boolean] {
+
     def from(s: String): Try[Boolean] = s.toLowerCase match {
       case "yes" | "1" => Success(true)
       case "no"  | "0" => Success(false)
       case _           => Success(false) // I do not understand what else it could be, so falsify everything else!!
+    }
+  }
+
+  implicit def meterDataCSVFieldConverter(implicit headers: Seq[String], seperator: Seperator): CSVFieldReader[MeterData] = new CSVFieldReader[MeterData] {
+    def from(s: String): Try[MeterData] = Try {
+      val seq = s.split(seperator.seperator).toSeq
+      MeterData(seq.head, new DateTime(seq(1)),
+        (headers.drop(2) zip seq.drop(2).map(_.toDouble)).toMap)
     }
   }
 

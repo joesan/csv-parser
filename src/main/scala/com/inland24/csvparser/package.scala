@@ -8,7 +8,11 @@ package object csvparser {
   case object Pipe  extends Seperator { val seperator = "\\|" }
   case object Tilde extends Seperator { val seperator = "" }
 
-  case class CSVParserConfig(seperator: Seperator = Comma, withErrors: Boolean = false)
+  case class CSVParserConfig(
+    seperator: Seperator = Comma,
+    withErrors: Boolean = false,
+    withHeaders: Boolean = false
+  )
 
   val defaultParserCfg = CSVParserConfig()
 }
