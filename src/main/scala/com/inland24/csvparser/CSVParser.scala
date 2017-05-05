@@ -67,7 +67,7 @@ object CSVParser extends App {
             }
             // check if we have some more elements to parse
             if (lines.hasNext) tailRecursiveParse(newAcc, continue = true)
-            else tailRecursiveParse(newAcc, continue = false)
+            else acc
           }
           else acc
         }
@@ -81,8 +81,8 @@ object CSVParser extends App {
 
   val reader = apply[Address]
 
-  //val withDefaultCfg: Seq[Address] = reader parse "/Users/jothi/Projects/Private/scala-projects/csv-parser/address.csv"
-  //withDefaultCfg foreach println
+  val withDefaultCfg: Seq[Address] = reader parse "/Users/jothi/Projects/Private/scala-projects/csv-parser/address.csv"
+  withDefaultCfg foreach println
 
   val withCustomConfig: Seq[Address] = reader parse "/Users/jothi/Projects/Private/scala-projects/csv-parser/address.csv" using CSVParserConfig(Pipe)
   withCustomConfig foreach println

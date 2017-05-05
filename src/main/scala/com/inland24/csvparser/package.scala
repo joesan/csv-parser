@@ -10,5 +10,5 @@ package object csvparser {
 
   case class CSVParserConfig(seperator: Seperator = Comma, withErrors: Boolean = false)
 
-   val defaultParserCfg = CSVParserConfig()
+  val defaultParserCfg = CSVParserConfig()
 }
