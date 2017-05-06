@@ -43,6 +43,13 @@ object CSVFieldReader {
     }
   }
 
+  implicit def seqCSVFieldConverter(implicit seperator: Seperator): CSVFieldReader[Seq[Double]] = new CSVFieldReader[Seq[Double]] {
+    def from(s: String): Try[Seq[Double]] = Try {
+      val seq = s.split(seperator.seperator).toSeq
+      seq.drop(2).map(_.toDouble)
+    }
+  }
+
   implicit def mapCSVFieldConverter(implicit headers: Seq[String], seperator: Seperator): CSVFieldReader[Map[String, Double]] = new CSVFieldReader[Map[String, Double]] {
     def from(s: String): Try[Map[String, Double]] = Try {
       val seq = s.split(seperator.seperator).toSeq
@@ -50,32 +57,10 @@ object CSVFieldReader {
     }
   }
 
-  // TODO: remove this later...
-  implicit val seperator: Seperator = Comma
-  implicit val headers: Seq[String] = Seq("a", "b", "c")
-
   implicit def meterDataCSVFieldConverter(implicit headers: Seq[String], seperator: Seperator): CSVFieldReader[MeterData] = new CSVFieldReader[MeterData] {
     def from(s: String): Try[MeterData] = Try {
       val seq = s.split(seperator.seperator).toSeq
-      MeterData(seq.head, new DateTime(seq(1)),
-        (headers.drop(2) zip seq.drop(2).map(_.toDouble)).toMap)
+      MeterData(seq.head, new DateTime(seq(1)), seq.drop(2).map(_.toDouble))
     }
   }
-
-  sealed trait TimeSeperator { def seperator: String }
-  case object ColonTimeSeperator extends TimeSeperator { val seperator = ":" }
-  case object HyphenTimeSeperator extends TimeSeperator { val seperator = "-" }
-
-  def timeHHmmCSVFieldConverter(t: TimeSeperator): CSVFieldReader[PeriodFormatter] = new CSVFieldReader[PeriodFormatter] {
-    def from(s: String): Try[PeriodFormatter] = Try {
-      new PeriodFormatterBuilder()
-        .appendHours()
-        .appendSeparator(t.seperator)
-        .appendMinutes()
-        .toFormatter
-    }
-  }
-
-  implicit def timeHHmmWithColonSeperator: CSVFieldReader[PeriodFormatter] = timeHHmmCSVFieldConverter(ColonTimeSeperator)
-  implicit def timeHHmmWithHyphenSeperator: CSVFieldReader[PeriodFormatter] = timeHHmmCSVFieldConverter(HyphenTimeSeperator)
 }

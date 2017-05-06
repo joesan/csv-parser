@@ -33,7 +33,7 @@ object CSVParser extends App {
   case class Address(firstName: String, lastName: String, number: Int)
 
   // for... [TODO: use proper interval format]
-  case class MeterData(meterId: String, dateTime: DateTime, meterReadings: Map[String, Double])
+  case class MeterData(meterId: String, dateTime: DateTime, meterReadings: Seq[Double])
 
   class CSVReader[A: CSVParser.CSVRowParser] {
     def parse(path: String): ReaderWithFile[A] = ReaderWithFile[A](Source.fromFile(path).getLines())
@@ -64,16 +64,22 @@ object CSVParser extends App {
         def tailRecursiveParse(acc: Seq[B], lines: Iterator[String], continue: Boolean): Seq[B] = {
           if (continue) {
 
-            // we transform
+            // we transform (TODO: this logic only applies to MeterData)
+            // TODO:
+            // using ClassTag feature, identify the target case class type and use
+            // the splitting logic accordingly!!!
             val splitted = lines.next.split(cfg.seperator.seperator).toList.map(_.trim)
+            println(splitted(0))
+            println(splitted(1))
+            val newSeq: Seq[String] = Seq(splitted(0), splitted(1), splitted.drop(2).mkString(","))
 
             // obnoxious code to follow!
-            val newAcc = CSVRowParser[B].parse(splitted) match {
+            val newAcc = CSVRowParser[B].parse(newSeq) match {
               case Success(suck) =>
                 acc ++ Seq(suck)
               case Failure(fcuk) =>
-                println(s"unable to parse line $splitted << reason >> ${fcuk.getMessage}")
-                fcuk.getStackTrace foreach println
+                println(s"unable to parse line because of ${fcuk.getMessage}")
+                //fcuk.getStackTrace foreach println
                 acc
             }
             // check if we have some more elements to parse
