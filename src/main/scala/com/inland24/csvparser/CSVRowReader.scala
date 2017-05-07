@@ -2,7 +2,6 @@ package com.inland24.csvparser
 
 import shapeless._
 
-import scala.util.control.NonFatal
 import scala.util.{Failure, Success, Try}
 
 /**
@@ -25,21 +24,15 @@ object CSVRowReader {
   // we now need converters to convert the List[String] in each row to a shapeless HList and HNil
   implicit def hNilFromCSVRow: CSVRowReader[HNil] = instance {
     case Nil => Success(HNil)
-    case x  => Failure(new RuntimeException("some shit happened when transforming to case class"))
+    case _  => Failure(new RuntimeException("some shit happened when transforming to case class"))
   }
 
-  implicit def hConsFromCSVRow[HEAD: CSVFieldReader, TAIL <: HList: CSVRowReader]: CSVRowReader[HEAD :: TAIL] =
-    try {
-      instance {
-        case h :: t => for {
-          head <- CSVFieldReader[HEAD].from(h)
-          tail <- CSVRowReader[TAIL].from(t)
-        } yield head :: tail
-        case Nil => Failure(new RuntimeException("Expected more fields"))
-      }
-    } catch {
-      case NonFatal(ex) =>
-        println(ex.getMessage)
-        throw new Exception(ex)
+  implicit def hConsFromCSVRow[H: CSVFieldReader, T <: HList: CSVRowReader]: CSVRowReader[H :: T] =
+    instance {
+      case h :: t => for {
+        head <- CSVFieldReader[H].from(h)
+        tail <- CSVRowReader[T].from(t)
+      } yield head :: tail
+      case Nil => Failure(new RuntimeException("Expected more fields"))
     }
 }
