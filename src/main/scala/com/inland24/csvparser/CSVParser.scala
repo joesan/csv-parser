@@ -36,19 +36,19 @@ object CSVParser extends App {
   case class MeterData(meterId: String, dateTime: DateTime, meterReadings: Seq[Double])
 
   class CSVReader[A: CSVParser.CSVRowParser] {
-    def parse(path: String): ReaderWithFile[A] = ReaderWithFile[A](Source.fromFile(path).getLines())
-    def parse(lines: Iterator[String]): ReaderWithFile[A] = ReaderWithFile[A](lines)
+    def parse(path: String)(implicit m: scala.reflect.Manifest[A]): ReaderWithFile[A] = ReaderWithFile[A](Source.fromFile(path).getLines())
+    def parse(lines: Iterator[String])(implicit m: scala.reflect.Manifest[A]): ReaderWithFile[A] = ReaderWithFile[A](lines)
 
     object ReaderWithFile {
       // This implicit conversion will be applied for cases where the caller does not
       // specify any parser configuration, so we resort to using a default which is a CSV file with
       // comma separated!
-      implicit def parser2parsed[B](parse: ReaderWithFile[B]): Seq[B] = parse using CSVParserConfig(Comma)
+      implicit def parser2parsed[B](parse: ReaderWithFile[B])(implicit m: scala.reflect.Manifest[B]): Seq[B] = parse using CSVParserConfig(Comma)
     }
 
     // TODO: Recursively run through the lines and collect the errors if any!!
-    case class ReaderWithFile[B: CSVRowParser](lines: Iterator[String]) {
-      def using(cfg: CSVParserConfig): Seq[B] = {
+    case class ReaderWithFile[B: CSVRowParser : Manifest](lines: Iterator[String]) {
+      def using(cfg: CSVParserConfig)(implicit m: scala.reflect.Manifest[B]): Seq[B] = {
 
         // let's set the implicit configurations in scope, these will be used by the CSVFieldReaders as needed
         implicit val seperator: Seperator = cfg.seperator
@@ -57,7 +57,7 @@ object CSVParser extends App {
         }
 
         // even before we could pass our shit into the CSVRowParser, let's have a sanity check!!
-        println (tag.getClass.getCanonicalName)
+        println (m.runtimeClass.getCanonicalName)
         //println(implicitly[Typeable[B]].describe)
 
         @tailrec
