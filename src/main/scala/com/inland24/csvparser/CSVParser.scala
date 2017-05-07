@@ -14,6 +14,7 @@ object CSVParser extends App {
 
   // This will be our interface between the Shapeless HList and our case class
   trait CSVRowParser[A] {
+    // given a seq of String, we get back our case class parsed from the CSV
     def parse(row: Seq[String]): Try[A]
   }
 
@@ -61,11 +62,15 @@ object CSVParser extends App {
             case elem if elem.nonEmpty => elem.trim
           }
 
+          // This is where you will add your new case classes, but if you think
+          // adding stuff here might be nuisance, then we could pass a function
+          // which will contain the split logic!
           m.runtimeClass.getCanonicalName match {
             case runtimeClass if runtimeClass == "com.inland24.csvparser.CSVParser.MeterData" =>
               val splitted = justSplit
               // we split as per our CSV data and in places where er mkString, we use a comma seperator
               Seq(splitted.head, splitted(1), splitted.drop(2).mkString(Comma.seperator))
+            // the default way to split is to just split a line
             case _ =>
               justSplit
           }
@@ -96,7 +101,7 @@ object CSVParser extends App {
       }
     }
   }
-  
+
   def apply[A: CSVRowParser] = new CSVReader[A]
 
   val meterDataReader = apply[MeterData]
