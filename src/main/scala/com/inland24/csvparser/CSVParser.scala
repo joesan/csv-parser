@@ -54,6 +54,7 @@ object CSVParser extends App {
 
         // TODO: Where to put this stuff?? let's set the implicit configurations in scope, these will be used by the CSVFieldReaders as needed
         if (lines.hasNext && cfg.withHeaders) {
+          println("this header information should be passed in to the CSVFieldReaders")
           implicit val headers: Seq[String] = lines.next.split(cfg.seperator.seperator).toList.map(_.trim)
         }
 
@@ -109,7 +110,7 @@ object CSVParser extends App {
 
   def apply[A: CSVRowParser] = new CSVReader[A]
 
-  // TODO: We need this header to be resolved right here... otherwise it seems not to work!
+  // TODO: We need this header to be resolved right here... otherwise it seems not to work! This is a dummy header just for testing!
   implicit val headers: Seq[String] = Seq("a", "b", "c", "d")
 
   val meterDataReader = apply[MeterData]
