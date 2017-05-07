@@ -1,8 +1,7 @@
 package com.inland24.csvparser
 
-import com.inland24.csvparser.CSVParser.MeterData
 import org.joda.time.DateTime
-import org.joda.time.format.{DateTimeFormat, PeriodFormatter, PeriodFormatterBuilder}
+import org.joda.time.format.DateTimeFormat
 
 import scala.util.{Success, Try}
 
@@ -45,22 +44,15 @@ object CSVFieldReader {
 
   implicit def seqCSVFieldConverter(implicit seperator: Seperator): CSVFieldReader[Seq[Double]] = new CSVFieldReader[Seq[Double]] {
     def from(s: String): Try[Seq[Double]] = Try {
-      val seq = s.split(seperator.seperator).toSeq
-      seq.drop(2).map(_.toDouble)
+      s.split(seperator.seperator).map(_.toDouble).toSeq
     }
   }
 
+  // TODO: this is not yet used...
   implicit def mapCSVFieldConverter(implicit headers: Seq[String], seperator: Seperator): CSVFieldReader[Map[String, Double]] = new CSVFieldReader[Map[String, Double]] {
     def from(s: String): Try[Map[String, Double]] = Try {
       val seq = s.split(seperator.seperator).toSeq
       (headers.drop(2) zip seq.drop(2).map(_.toDouble)).toMap
-    }
-  }
-
-  implicit def meterDataCSVFieldConverter(implicit headers: Seq[String], seperator: Seperator): CSVFieldReader[MeterData] = new CSVFieldReader[MeterData] {
-    def from(s: String): Try[MeterData] = Try {
-      val seq = s.split(seperator.seperator).toSeq
-      MeterData(seq.head, new DateTime(seq(1)), seq.drop(2).map(_.toDouble))
     }
   }
 }

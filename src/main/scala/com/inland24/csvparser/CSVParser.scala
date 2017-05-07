@@ -61,35 +61,42 @@ object CSVParser extends App {
         //println(implicitly[Typeable[B]].describe)
 
         @tailrec
-        def tailRecursiveParse(acc: Seq[B], lines: Iterator[String], continue: Boolean): Seq[B] = {
-          if (continue) {
-
-            // we transform (TODO: this logic only applies to MeterData)
-            // TODO:
-            // using ClassTag feature, identify the target case class type and use
-            // the splitting logic accordingly!!!
-            val splitted = lines.next.split(cfg.seperator.seperator).toList.map(_.trim)
-            println(splitted(0))
-            println(splitted(1))
-            val newSeq: Seq[String] = Seq(splitted(0), splitted(1), splitted.drop(2).mkString(","))
-
-            // obnoxious code to follow!
-            val newAcc = CSVRowParser[B].parse(newSeq) match {
-              case Success(suck) =>
-                acc ++ Seq(suck)
-              case Failure(fcuk) =>
-                println(s"unable to parse line because of ${fcuk.getMessage}")
-                //fcuk.getStackTrace foreach println
-                acc
+        def tailRecursiveParse(acc: Seq[B], lines: Iterator[String], hasMoreRows: Boolean): Seq[B] = {
+          if (hasMoreRows) {
+            // we split each row based on the seperator, collect all non empty rows trimming them on the way
+            val splitted = lines.next.split(cfg.seperator.seperator).toSeq.collect {
+              case elem if elem.nonEmpty => elem.trim
             }
-            // check if we have some more elements to parse
-            if (lines.hasNext) tailRecursiveParse(newAcc, lines, continue = true)
-            else newAcc
+            splitted match {
+              // probably an empty row in the CSV, we just ignore it and proceed
+              case Nil => tailRecursiveParse(acc, lines, hasMoreRows = lines.hasNext)
+              case _   =>
+                // we transform (TODO: this logic only applies to MeterData)
+                // TODO:
+                // using ClassTag feature, identify the target case class type and use
+                // the splitting logic accordingly!!!
+                println(splitted.head)
+                println(splitted(1))
+                val newSeq: Seq[String] = Seq(splitted.head, splitted(1), splitted.drop(2).mkString(cfg.seperator.seperator))
+
+                // obnoxious code to follow!
+                val newAcc = CSVRowParser[B].parse(newSeq) match {
+                  case Success(suck) =>
+                    acc ++ Seq(suck)
+                  case Failure(fcuk) =>
+                    println(s"unable to parse line because of ${fcuk.getMessage}")
+                    //fcuk.getStackTrace foreach println
+                    acc
+                }
+                // check if we have some more elements to parse
+                tailRecursiveParse(newAcc, lines, hasMoreRows = lines.hasNext)
+            }
+
           }
           else acc
         }
 
-        tailRecursiveParse(Seq.empty[B], lines, continue = true)
+        tailRecursiveParse(Seq.empty[B], lines, hasMoreRows = lines.hasNext)
       }
     }
   }

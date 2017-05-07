@@ -32,11 +32,7 @@ object CSVRowReader {
     try {
       instance {
         case h :: t => for {
-          head <- {
-            val xxx = CSVFieldReader[HEAD].from(h)
-            println(xxx)
-            xxx
-          }
+          head <- CSVFieldReader[HEAD].from(h)
           tail <- CSVRowReader[TAIL].from(t)
         } yield head :: tail
         case Nil => Failure(new RuntimeException("Expected more fields"))
