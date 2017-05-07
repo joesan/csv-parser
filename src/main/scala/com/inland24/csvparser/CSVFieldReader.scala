@@ -52,7 +52,8 @@ object CSVFieldReader {
   implicit def mapCSVFieldConverter(implicit headers: Seq[String]): CSVFieldReader[Map[String, Double]] = new CSVFieldReader[Map[String, Double]] {
     def from(s: String): Try[Map[String, Double]] = Try {
       val seq = s.split(Comma.seperator).map(_.toDouble).toSeq
-      headers foreach println
+      headers foreach print
+      seq foreach print
       (headers zip seq).toMap
     }
   }

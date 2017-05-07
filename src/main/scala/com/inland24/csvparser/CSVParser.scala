@@ -67,7 +67,8 @@ object CSVParser extends App {
           // adding stuff here might be nuisance, then we could pass a function
           // which will contain the split logic!
           m.runtimeClass.getCanonicalName match {
-            case runtimeClass if runtimeClass == "com.inland24.csvparser.CSVParser.MeterData" =>
+            case runtimeClass
+              if runtimeClass == "com.inland24.csvparser.CSVParser.MeterData" || runtimeClass == "com.inland24.csvparser.CSVParser.MeterDataAsMap" =>
               val splitted = justSplit
               // we split as per our CSV data and in places where er mkString, we use a comma seperator
               Seq(splitted.head, splitted(1), splitted.drop(2).mkString(Comma.seperator))
@@ -108,6 +109,7 @@ object CSVParser extends App {
 
   def apply[A: CSVRowParser] = new CSVReader[A]
 
+  // TODO: We need this header to be resolved right here... otherwise it seems not to work!
   implicit val headers: Seq[String] = Seq("a", "b", "c", "d")
 
   val meterDataReader = apply[MeterData]
