@@ -35,6 +35,7 @@ object CSVParser extends App {
 
   // for... [TODO: use proper interval format]
   case class MeterData(meterId: String, dateTime: DateTime, meterReadings: Seq[Double])
+  case class MeterDataAsMap(meterId: String, dateTime: DateTime, meterReadings: Map[String, Double])
 
   class CSVReader[A: CSVParser.CSVRowParser] {
     def parse(path: String)(implicit m: scala.reflect.Manifest[A]): ReaderWithFile[A] = ReaderWithFile[A](Source.fromFile(path).getLines())
@@ -87,8 +88,12 @@ object CSVParser extends App {
                 case elems =>
                   // obnoxious code to follow!
                   CSVRowParser[B].parse(elems) match {
-                    case Success(suck) => parse(acc ++ Seq(suck), lines, lines.hasNext)
-                    case Failure(_) => acc // currently ignoring the exceptions...
+                    case Success(suck) =>
+                      parse(acc ++ Seq(suck), lines, lines.hasNext)
+                    case Failure(ex) =>
+                      println("some shit happened")
+                      ex.printStackTrace()
+                      acc // currently ignoring the exceptions...
                   }
               }
             }
@@ -96,7 +101,6 @@ object CSVParser extends App {
           }
           else acc
         }
-
         parse(Seq.empty[B], lines, lines.hasNext)
       }
     }
@@ -104,11 +108,17 @@ object CSVParser extends App {
 
   def apply[A: CSVRowParser] = new CSVReader[A]
 
+  implicit val headers: Seq[String] = Seq("a", "b", "c", "d")
+
   val meterDataReader = apply[MeterData]
+  val meterDataMapReader = apply[MeterDataAsMap]
   val userReader = apply[User]
 
   val meterDataSeq: Seq[MeterData] = meterDataReader parse "/Users/jothi/Projects/Private/scala-projects/csv-parser/meter.csv" using CSVParserConfig(withHeaders = true)
   meterDataSeq foreach println
+
+  val meterDataMapSeq: Seq[MeterDataAsMap] = meterDataMapReader parse "/Users/jothi/Projects/Private/scala-projects/csv-parser/meter.csv" using CSVParserConfig(withHeaders = true)
+  meterDataMapSeq foreach println
 
   val userSeq: Seq[User] = userReader parse "/Users/jothi/Projects/Private/scala-projects/csv-parser/user.csv"
   userSeq foreach println
