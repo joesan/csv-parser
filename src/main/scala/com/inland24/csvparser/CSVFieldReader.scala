@@ -42,16 +42,16 @@ object CSVFieldReader {
     }
   }
 
-  implicit def seqCSVFieldConverter(implicit seperator: Seperator): CSVFieldReader[Seq[Double]] = new CSVFieldReader[Seq[Double]] {
+  implicit def seqCSVFieldConverter: CSVFieldReader[Seq[Double]] = new CSVFieldReader[Seq[Double]] {
     def from(s: String): Try[Seq[Double]] = Try {
-      s.split(seperator.seperator).map(_.toDouble).toSeq
+      s.split(Comma.seperator).map(_.toDouble).toSeq
     }
   }
 
   // TODO: this is not yet used...
   implicit def mapCSVFieldConverter(implicit headers: Seq[String], seperator: Seperator): CSVFieldReader[Map[String, Double]] = new CSVFieldReader[Map[String, Double]] {
     def from(s: String): Try[Map[String, Double]] = Try {
-      val seq = s.split(seperator.seperator).toSeq
+      val seq = s.split(Comma.seperator).toSeq
       (headers.drop(2) zip seq.drop(2).map(_.toDouble)).toMap
     }
   }

@@ -46,12 +46,11 @@ object CSVParser extends App {
       implicit def parser2parsed[B](parse: ReaderWithFile[B])(implicit m: scala.reflect.Manifest[B]): Seq[B] = parse using CSVParserConfig(Comma)
     }
 
-    // TODO: Recursively run through the lines and collect the errors if any!!
+    // TODO: Collect the errors if any and if needed!!
     case class ReaderWithFile[B: CSVRowParser : Manifest](lines: Iterator[String]) {
       def using(cfg: CSVParserConfig)(implicit m: scala.reflect.Manifest[B]): Seq[B] = {
 
         // TODO: Where to put this stuff?? let's set the implicit configurations in scope, these will be used by the CSVFieldReaders as needed
-        implicit val seperator: Seperator = cfg.seperator
         if (lines.hasNext && cfg.withHeaders) {
           implicit val headers: Seq[String] = lines.next.split(cfg.seperator.seperator).toList.map(_.trim)
         }
@@ -65,7 +64,8 @@ object CSVParser extends App {
           m.runtimeClass.getCanonicalName match {
             case runtimeClass if runtimeClass == "com.inland24.csvparser.CSVParser.MeterData" =>
               val splitted = justSplit
-              Seq(splitted.head, splitted(1), splitted.drop(2).mkString(cfg.seperator.seperator))
+              // we split as per our CSV data and in places where er mkString, we use a comma seperator
+              Seq(splitted.head, splitted(1), splitted.drop(2).mkString(Comma.seperator))
             case _ =>
               justSplit
           }
@@ -96,10 +96,7 @@ object CSVParser extends App {
       }
     }
   }
-
-  // TODO: remove this later...
-  implicit val seperator: Seperator = Comma
-
+  
   def apply[A: CSVRowParser] = new CSVReader[A]
 
   val meterDataReader = apply[MeterData]
