@@ -1,5 +1,7 @@
 [![Codacy Badge](https://api.codacy.com/project/badge/Grade/ae72f2c2cd3a414b9fe2f81e453749d8)](https://www.codacy.com/app/joesan/csv-parser?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=joesan/csv-parser&amp;utm_campaign=Badge_Grade)
 
+[![Build Status](https://travis-ci.org/joesan/csv-parser.svg?branch=master)](https://travis-ci.org/joesan/csv-parser)
+
 # csv-parser
 A parser implementation for CSV files using the awesome Shapeless library
 
