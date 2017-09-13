@@ -3,7 +3,9 @@
 [![Open Source](https://img.shields.io/badge/Open%20Source-100%25-yellowgreen.svg)]()
 
 # csv-parser [![Unit Tests](https://img.shields.io/badge/unit--tests-0%25-red.svg)]()
-A parser implementation for CSV files using the awesome Shapeless library
+A parser implementation for CSV files using the awesome Shapeless library! Just parse any CSV file of your choice.
+
+All you have to specify is a case class that you want the CSV to parse into and of course the CSV file that you want to parse. With this information, the library can produce a Sequence of your case classes. Any errors are being logged and possibly ignored!
 
 ## Getting Started
 
