@@ -64,7 +64,7 @@ perform the following steps:
 3. To run the jar file that was produced using the previous step: 
    java -cp target/scala-2.11/XXX.jar path.to.your.MainClass args(0)
    
-   [TODO...] document!
+   Make sure the CSV file is located in the correct path
 ```
 
 ## Deployment
