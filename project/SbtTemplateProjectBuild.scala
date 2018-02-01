@@ -19,7 +19,8 @@ object SbtTemplateProjectBuild extends Build {
         Libraries.log4j,
         Libraries.jodaTime,
         Libraries.shapeless,
-        Libraries.openCSV
+        Libraries.openCSV,
+        Libraries.akkaStreams
         //Libraries.scalaReflect
         // Add your additional libraries here (comma-separated)...
       )

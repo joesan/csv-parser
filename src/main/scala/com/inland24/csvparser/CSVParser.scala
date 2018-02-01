@@ -1,9 +1,12 @@
 package com.inland24.csvparser
 
+import akka.stream.IOResult
+import akka.util.ByteString
 import org.joda.time.DateTime
 import shapeless._
 
 import scala.annotation.tailrec
+import scala.concurrent.Future
 import scala.io.Source
 import scala.util.{Failure, Success, Try}
 
@@ -109,7 +112,7 @@ object CSVParser extends App {
   }
 
   def apply[A: CSVRowParser] = new CSVReader[A]
-
+/*
   // TODO: We need this header to be resolved right here... otherwise it seems not to work! This is a dummy header just for testing!
   implicit val headers: Seq[String] = Seq("a", "b", "c", "d")
 
@@ -124,8 +127,45 @@ object CSVParser extends App {
   meterDataMapSeq foreach println
 
   val userSeq: Seq[User] = userReader parse "/Users/jothi/Projects/Private/scala-projects/csv-parser/user.csv"
-  userSeq foreach println
+  userSeq foreach println */
 
   //val withCustomConfig: Seq[Address] = reader parse "/Users/jothi/Projects/Private/scala-projects/csv-parser/address.csv" using CSVParserConfig(Pipe)
   //withCustomConfig foreach println
+
+  readUsingAkkaStreams
+
+  def readUsingAkkaStreams = {
+
+    import java.io.File
+    import akka.stream.scaladsl._
+    import akka.actor.ActorSystem
+    import akka.stream.ActorMaterializer
+    import scala.concurrent.ExecutionContext.Implicits.global
+
+    implicit val system = ActorSystem("Sys")
+    implicit val materializer = ActorMaterializer()
+
+    val file = new File("/Users/jothi/Projects/Private/scala-projects/csv-parser/meter.csv")
+
+    val fileSource = FileIO.fromFile(file, 65536).via(Framing.delimiter(
+      ByteString("\n"),
+      maximumFrameLength = 65536,
+      allowTruncation = true))
+
+    val flow = fileSource.map(chunk => chunk.utf8String)
+
+    val result = flow.runWith(Sink.foreach{
+      case elem =>
+        println("START: ******* ")
+        println(elem)
+        println("END: ********")
+    })
+
+    result.onComplete {
+      case elem => elem match {
+        case Success(_) => system.terminate()
+        case Failure(fcku) => println(s"Something failed ${fcku.getMessage}")
+      }
+    }
+  }
 }

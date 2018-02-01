@@ -12,6 +12,7 @@ object Dependencies {
     val shapeless           = "2.3.2"
     val openCSV             = "3.9"
     val scalaReflect        = "2.11.8"
+    val akkaStreams         = "2.5.9"
   }
 
   object Libraries {
@@ -19,5 +20,6 @@ object Dependencies {
     val log4j                = "log4j"              %  "log4j"                     % Versions.log4j
     val openCSV              = "com.opencsv"        %  "opencsv"                   % Versions.openCSV
     val shapeless            = "com.chuusai"        %% "shapeless"                 % Versions.shapeless
+    val akkaStreams          = "com.typesafe.akka"  %% "akka-stream"               % Versions.akkaStreams
   }
 }
