@@ -33,6 +33,6 @@ object CSVRowReader {
         head <- CSVFieldReader[H].from(h)
         tail <- CSVRowReader[T].from(t)
       } yield head :: tail
-      case Nil => Failure(new Exception("Expected more fields"))
+      case Nil => Failure(new RuntimeException("Expected more fields"))
     }
 }

@@ -21,24 +21,23 @@ object CSVParser extends App {
   object CSVRowParser {
 
     implicit def all[A, H <: HList](implicit gen: Generic.Aux[A, H],
-      read: CSVRowReader[H]): CSVRowParser[A] = (row: Seq[String]) => {
-      read.from(row).map(gen.from)
+      read: CSVRowReader[H]): CSVRowParser[A] = new CSVRowParser[A] {
+      def parse(row: Seq[String]): Try[A] = {
+        read.from(row).map(gen.from)
+      }
     }
     def apply[A](implicit ev: CSVRowParser[A]): CSVRowParser[A] = ev
   }
 
-  class CSVReader[A: CSVRowParser] {
-    /*def parse(path: String)(implicit m: scala.reflect.Manifest[A]): ReaderWithFile[A] = {
-      Try(Source.fromFile(path)) match {
-        case Success(source) =>
-          val reader = ReaderWithFile[A](source.getLines())
-          source.close()
-          reader
-        case Failure(fail) =>
-          println(s"Reading CSV file failed because of ${fail.getMessage}")
-          ReaderWithFile[A](Iterator.empty)
-      }
-    } */
+  // this is our case class that we will parse into
+  case class User(id: Int, firstName: String, lastName: String)
+  case class Address(firstName: String, lastName: String, number: Int)
+
+  // for... [TODO: use proper interval format]
+  case class MeterData(meterId: String, dateTime: DateTime, meterReadings: Seq[Double])
+  case class MeterDataAsMap(meterId: String, dateTime: DateTime, meterReadings: Map[String, Double])
+
+  class CSVReader[A: CSVParser.CSVRowParser] {
     def parse(path: String)(implicit m: scala.reflect.Manifest[A]): ReaderWithFile[A] = ReaderWithFile[A](Source.fromFile(path).getLines())
     def parse(lines: Iterator[String])(implicit m: scala.reflect.Manifest[A]): ReaderWithFile[A] = ReaderWithFile[A](lines)
 
@@ -49,13 +48,9 @@ object CSVParser extends App {
       implicit def parser2parsed[B](parse: ReaderWithFile[B])(implicit m: scala.reflect.Manifest[B]): Seq[B] = parse using CSVParserConfig(Comma)
     }
 
-    // TODO: Collect the errors if any and if needed!! Handling Errors is not yet implemented!!!!
+    // TODO: Collect the errors if any and if needed!!
     case class ReaderWithFile[B: CSVRowParser : Manifest](lines: Iterator[String]) {
-      def using(cfg: CSVParserConfig, caseClassCanonicalName: Option[String] = None, fn: Option[Seq[String] => Seq[String]] = None)(implicit m: scala.reflect.Manifest[B]): Seq[B] = {
-
-        def justSplit(line: String): Seq[String] = line.split(cfg.seperator.seperator).toList.collect {
-          case elem if elem.nonEmpty => elem.trim
-        }
+      def using(cfg: CSVParserConfig)(implicit m: scala.reflect.Manifest[B]): Seq[B] = {
 
         // TODO: Where to put this stuff?? let's set the implicit configurations in scope, these will be used by the CSVFieldReaders as needed
         if (lines.hasNext && cfg.withHeaders) {
@@ -65,19 +60,22 @@ object CSVParser extends App {
 
         def splitByRuntimeType(line: String): Seq[String] = {
 
+          def justSplit: Seq[String] = line.split(cfg.seperator.seperator).toList.collect {
+            case elem if elem.nonEmpty => elem.trim
+          }
+
           // This is where you will add your new case classes, but if you think
           // adding stuff here might be nuisance, then we could pass a function
           // which will contain the split logic!
           m.runtimeClass.getCanonicalName match {
-            case runtimeClass if caseClassCanonicalName.isDefined && fn.isDefined && runtimeClass == caseClassCanonicalName.get =>
-              val splitted = justSplit(line)
-
-              // we split as per our CSV data and in places where we mkString, we use a comma separator
-              val xxx = fn.get(splitted)
-              xxx
-            // the default way to split is to just split a line by the separator in the CSV file
+            case runtimeClass
+              if runtimeClass == "com.bigelectrons.csvparser.CSVParser.MeterData" || runtimeClass == "com.bigelectrons.csvparser.CSVParser.MeterDataAsMap" =>
+              val splitted = justSplit
+              // we split as per our CSV data and in places where er mkString, we use a comma seperator
+              Seq(splitted.head, splitted(1), splitted.drop(2).mkString(Comma.seperator))
+            // the default way to split is to just split a line
             case _ =>
-              justSplit(line)
+              justSplit
           }
         }
 
@@ -95,7 +93,7 @@ object CSVParser extends App {
                     case Success(suck) =>
                       parse(acc ++ Seq(suck), lines, lines.hasNext)
                     case Failure(ex) =>
-                      println(s"some shit happened ${ex.getMessage}")
+                      println("some shit happened")
                       ex.printStackTrace()
                       acc // currently ignoring the exceptions...
                   }
@@ -105,12 +103,33 @@ object CSVParser extends App {
           }
           else acc
         }
-
-        // Here we start with an empty line and recursively parse the CSV file
         parse(Seq.empty[B], lines, lines.hasNext)
       }
     }
   }
 
   def apply[A: CSVRowParser] = new CSVReader[A]
+
+  // TODO: We need this header to be resolved right here... otherwise it seems not to work! This is a dummy header just for testing!
+  implicit val headers: Seq[String] = Seq("a", "b", "c", "d")
+
+  val meterDataReader = apply[MeterData]
+  val meterDataMapReader = apply[MeterDataAsMap]
+  val userReader = apply[User]
+
+  val meterDataSeq: Seq[MeterData] = meterDataReader parse "/Users/joesan/Projects/Private/scala-projects/csv-parser/meter.csv" using CSVParserConfig(withHeaders = true)
+  meterDataSeq foreach {
+    case elem => println("************")
+      println(elem)
+      println("************")
+  }
+
+  //val meterDataMapSeq: Seq[MeterDataAsMap] = meterDataMapReader parse "/Users/joesan/Projects/Private/scala-projects/csv-parser/meter.csv" using CSVParserConfig(withHeaders = true)
+  //meterDataMapSeq foreach println
+
+  val userSeq: Seq[User] = userReader parse "/Users/joesan/Projects/Private/scala-projects/csv-parser/user.csv" using CSVParserConfig(withHeaders = true)
+  userSeq foreach println
+
+  //val withCustomConfig: Seq[Address] = reader parse "/Users/jothi/Projects/Private/scala-projects/csv-parser/address.csv" using CSVParserConfig(Pipe)
+  //withCustomConfig foreach println
 }
