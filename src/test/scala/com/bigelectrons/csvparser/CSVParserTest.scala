@@ -8,11 +8,14 @@ import org.scalatest.FlatSpec
 class CSVParserTest extends FlatSpec {
 
   "CSV Parser test" should "Parse CSV files to Case classes" in {
-    //val meterDataSeq: Seq[MeterData] = meterDataReader parse "/Users/joesan/Projects/Private/scala-projects/csv-parser/meter.csv" using (CSVParserConfig(withHeaders = true), fn = Some(meterDataSplitter))
-    //meterDataSeq foreach println
+    val canonicalName = Some(classOf[MeterData].getCanonicalName)
+    val meterCsvParserCfg = CSVParserConfig(withHeaders = true, caseClassCanonicalName = canonicalName, splitterFn = Some(meterDataSplitter))
+    val meterCsv = "/Users/joesan/Projects/Private/scala-projects/csv-parser/src/test/resources/meter.csv"
+    val meterDataSeq: Seq[MeterData] = meterDataReader parse meterCsv using meterCsvParserCfg
+    meterDataSeq foreach println
 
-    val meterDataMapSeq: Seq[MeterDataAsMap] = meterDataMapReader parse "/Users/joesan/Projects/Private/scala-projects/csv-parser/src/main/test/resources/meter.csv" using (CSVParserConfig(withHeaders = true), fn = Some(meterDataSplitter))
-    meterDataMapSeq foreach println
+    //val meterDataMapSeq: Seq[MeterDataAsMap] = meterDataMapReader parse "/Users/joesan/Projects/Private/scala-projects/csv-parser/src/test/resources/meter.csv" using (CSVParserConfig(withHeaders = true), fn = Some(meterDataSplitter))
+    //meterDataMapSeq foreach println
 
     //val result = CsvParser1[User].parseCSVFile("/Users/joesan/Projects/Private/scala-projects/csv-parser/user.csv")
     //result foreach println
@@ -38,7 +41,7 @@ class CSVParserTest extends FlatSpec {
 
   // Custom logic to split MeterData
   def meterDataSplitter(s: Seq[String]): Seq[String] = {
-    Seq(s.head, s(1), s.drop(2).mkString(Comma.seperator))
+    Seq(s.head, s(1), s.drop(2).mkString(Comma.separator))
   }
 
 

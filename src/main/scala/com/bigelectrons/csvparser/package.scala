@@ -3,16 +3,18 @@ package com.bigelectrons
 
 package object csvparser {
 
-  sealed trait Seperator { def seperator: String }
-  case object Comma extends Seperator { val seperator = "," }
-  case object Semicolon extends Seperator { val seperator = ";" }
-  case object Colon extends Seperator { val seperator = ":" }
-  case object Pipe  extends Seperator { val seperator = "\\|" }
-  case object Tilde extends Seperator { val seperator = "" }
+  sealed trait Separator { def separator: String }
+  case object Comma extends Separator { val separator = "," }
+  case object Semicolon extends Separator { val separator = ";" }
+  case object Colon extends Separator { val separator = ":" }
+  case object Pipe  extends Separator { val separator = "\\|" }
+  case object Tilde extends Separator { val separator = "" }
 
   case class CSVParserConfig(
-    seperator: Seperator = Comma,
+    separator: Separator = Comma,
     skipLines: Int = 0, // How many lines from the first couple of lines to skip
+    caseClassCanonicalName: Option[String] = None,
+    splitterFn: Option[Seq[String] => Seq[String]] = None,
     withErrors: Boolean = false,
     withHeaders: Boolean = false
   )

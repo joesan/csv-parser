@@ -1,6 +1,5 @@
 package com.bigelectrons.csvparser
 
-import org.joda.time.DateTime
 import shapeless._
 
 import scala.annotation.tailrec
@@ -51,44 +50,32 @@ object CSVParser extends App {
 
     // TODO: Collect the errors if any and if needed!! Handling Errors is not yet implemented!!!!
     case class ReaderWithFile[B: CSVRowParser : Manifest](lines: Iterator[String]) {
-      def using(cfg: CSVParserConfig, caseClassCanonicalName: Option[String] = None, fn: Option[Seq[String] => Seq[String]] = None)(implicit m: scala.reflect.Manifest[B]): Seq[B] = {
+      def using(cfg: CSVParserConfig)(implicit m: scala.reflect.Manifest[B]): Seq[B] = {
 
-        def justSplit(line: String): Seq[String] = line.split(cfg.seperator.seperator).toList.collect {
+        def justSplit(line: String): Seq[String] = line.split(cfg.separator.separator).toList.collect {
           case elem if elem.nonEmpty => elem.trim
         }
 
         // TODO: Where to put this stuff?? let's set the implicit configurations in scope, these will be used by the CSVFieldReaders as needed
         if (lines.hasNext && cfg.withHeaders) {
           println("this header information should be passed in to the CSVFieldReaders")
-          implicit val headers: Seq[String] = lines.next.split(cfg.seperator.seperator).toList.map(_.trim)
+          implicit val headers: Seq[String] = lines.next.split(cfg.separator.separator).toList.map(_.trim)
         }
 
         def splitByRuntimeType(line: String): Seq[String] = {
-
           // This is where you will add your new case classes, but if you think
           // adding stuff here might be nuisance, then we could pass a function
           // which will contain the split logic!
           m.runtimeClass.getCanonicalName match {
             case runtimeClass
-              if runtimeClass == "com.bigelectrons.csvparser.CSVParser.MeterData" || runtimeClass == "com.bigelectrons.csvparser.CSVParser.MeterDataAsMap" =>
-              val splitted = justSplit(line)
-              // we split as per our CSV data and in places where er mkString, we use a comma seperator
-              Seq(splitted.head, splitted(1), splitted.drop(2).mkString(Comma.seperator))
-            // the default way to split is to just split a line
-            case _ =>
-              justSplit(line)
-          } /*
-          m.runtimeClass.getCanonicalName match {
-            case runtimeClass if caseClassCanonicalName.isDefined && fn.isDefined && runtimeClass == caseClassCanonicalName.get =>
-              val splitted = justSplit(line)
-
+              if cfg.caseClassCanonicalName.isDefined &&
+                cfg.splitterFn.isDefined && runtimeClass == cfg.caseClassCanonicalName.get =>
               // we split as per our CSV data and in places where we mkString, we use a comma separator
-              val xxx = fn.get(splitted)
-              xxx
+              cfg.splitterFn.get(justSplit(line))
             // the default way to split is to just split a line by the separator in the CSV file
             case _ =>
               justSplit(line)
-          } */
+          }
         }
 
         @tailrec
