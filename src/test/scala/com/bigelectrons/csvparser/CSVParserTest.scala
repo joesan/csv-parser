@@ -23,8 +23,8 @@ class CSVParserTest extends FlatSpec {
     //val result = CsvParser1[User].parseCSVFile("/Users/joesan/Projects/Private/scala-projects/csv-parser/user.csv")
     //result foreach println
 
-    //val userSeq: Seq[User] = userReader parse "/Users/joesan/Projects/Private/scala-projects/csv-parser/user.csv" using CSVParserConfig(withHeaders = true)
-    //userSeq foreach println
+    val userSeq: Seq[User] = userReader parse "/Users/joesan/Projects/Private/scala-projects/csv-parser/src/test/resources/user.csv" using CSVParserConfig(withHeaders = true)
+    userSeq foreach println
   }
 
   // this is our case class that we will parse into

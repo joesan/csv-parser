@@ -29,14 +29,6 @@ object CSVParser extends App {
     def apply[A](implicit ev: CSVRowParser[A]): CSVRowParser[A] = ev
   }
 
-  // this is our case class that we will parse into
-  case class User(id: Int, firstName: String, lastName: String)
-  case class Address(firstName: String, lastName: String, number: Int)
-
-  // for... [TODO: use proper interval format]
-  case class MeterData(meterId: String, dateTime: DateTime, meterReadings: Seq[Double])
-  case class MeterDataAsMap(meterId: String, dateTime: DateTime, meterReadings: Map[String, Double])
-
   class CSVReader[A: CSVParser.CSVRowParser] {
     def parse(path: String)(implicit m: scala.reflect.Manifest[A]): ReaderWithFile[A] = ReaderWithFile[A](Source.fromFile(path).getLines())
     def parse(lines: Iterator[String])(implicit m: scala.reflect.Manifest[A]): ReaderWithFile[A] = ReaderWithFile[A](lines)
@@ -45,7 +37,7 @@ object CSVParser extends App {
       // This implicit conversion will be applied for cases where the caller does not
       // specify any parser configuration, so we resort to using a default which is a CSV file with
       // comma separated!
-      implicit def parser2parsed[B](parse: ReaderWithFile[B])(implicit m: scala.reflect.Manifest[B]): Seq[B] = parse using CSVParserConfig(Comma)
+      implicit def parser2parsed[B](parse: ReaderWithFile[B])(implicit m: scala.reflect.Manifest[B]): Seq[B] = parse using defaultParserCfg
     }
 
     // TODO: Collect the errors if any and if needed!!
@@ -110,7 +102,13 @@ object CSVParser extends App {
 
   def apply[A: CSVRowParser] = new CSVReader[A]
 
+  // this is our case class that we will parse into
+  case class User(id: Int, firstName: String, lastName: String)
+  case class Address(firstName: String, lastName: String, number: Int)
 
+  // for... [TODO: use proper interval format]
+  case class MeterData(meterId: String, dateTime: DateTime, meterReadings: Seq[Double])
+  case class MeterDataAsMap(meterId: String, dateTime: DateTime, meterReadings: Map[String, Double])
   val meterDataReader = apply[MeterData]
   //val meterDataMapReader = apply[MeterDataAsMap]
   val userReader = apply[User]
