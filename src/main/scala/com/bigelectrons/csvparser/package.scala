@@ -12,7 +12,8 @@ package object csvparser {
 
   case class CSVParserConfig(
     separator: Separator = Comma,
-    skipLines: Int = 0, // How many lines from the first couple of lines to skip
+    // Lines to skip until the header
+    skipLines: Int = 0,
     caseClassCanonicalName: Option[String] = None,
     splitterFn: Option[Seq[String] => Seq[String]] = None,
     withErrors: Boolean = false,

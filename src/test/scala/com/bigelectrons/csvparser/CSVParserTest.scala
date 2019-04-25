@@ -1,7 +1,7 @@
 package com.bigelectrons.csvparser
 
 import org.joda.time.DateTime
-import com.bigelectrons.csvparser.CSVParser.CSVRowParser._
+import com.bigelectrons.csvparser.DummyParser.CSVRowParser._
 import org.scalatest.FlatSpec
 
 
@@ -11,8 +11,12 @@ class CSVParserTest extends FlatSpec {
     val canonicalName = Some(classOf[MeterData].getCanonicalName)
     val meterCsvParserCfg = CSVParserConfig(withHeaders = true, caseClassCanonicalName = canonicalName, splitterFn = Some(meterDataSplitter))
     val meterCsv = "/Users/joesan/Projects/Private/scala-projects/csv-parser/src/test/resources/meter.csv"
-    val meterDataSeq: Seq[MeterData] = meterDataReader parse meterCsv using meterCsvParserCfg
+    //val meterDataSeq: Seq[MeterData] = meterDataReader parse meterCsv using meterCsvParserCfg
+    val csvParser1 = CsvParser.apply[MeterData]
+    val meterDataSeq: Seq[MeterData] = csvParser1.parse(meterCsv, meterCsvParserCfg)
     meterDataSeq foreach println
+
+
 
     //val meterDataMapSeq: Seq[MeterDataAsMap] = meterDataMapReader parse "/Users/joesan/Projects/Private/scala-projects/csv-parser/src/test/resources/meter.csv" using (CSVParserConfig(withHeaders = true), fn = Some(meterDataSplitter))
     //meterDataMapSeq foreach println
@@ -35,9 +39,9 @@ class CSVParserTest extends FlatSpec {
   // TODO: We need this header to be resolved right here... otherwise it seems not to work! This is a dummy header just for testing!
   implicit val headers: Seq[String] = Seq("a", "b", "c", "d")
 
-  val meterDataReader = CSVParser.apply[MeterData]
-  val meterDataMapReader = CSVParser.apply[MeterDataAsMap]
-  val userReader = CSVParser.apply[User]
+  val meterDataReader = DummyParser.apply[MeterData]
+  val meterDataMapReader = DummyParser.apply[MeterDataAsMap]
+  val userReader = DummyParser.apply[User]
 
   // Custom logic to split MeterData
   def meterDataSplitter(s: Seq[String]): Seq[String] = {
