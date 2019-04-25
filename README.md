@@ -58,7 +58,7 @@ as a dependency to your project:
 libraryDependencies += "com.bigelectrons.csvparser" %% "csv-parser" % version
 ```
 
-[![Latest version](https://index.scala-lang.org/bigelectrons/csv-parser/csv-parser/latest.svg)](https://index.scala-lang.org/bigelectrons/csv-parser/csv-parser)
+Latest `version`: [![Latest version](https://index.scala-lang.org/bigelectrons/csv-parser/csv-parser/latest.svg)](https://index.scala-lang.org/bigelectrons/csv-parser/csv-parser)
 
 ## Built With
 

@@ -23,7 +23,7 @@ lazy val csvparser = project.in(file(".")).
       "scm:git:git@github.com/joesan/csv-parser.git",
       Some("scm:git:git@github.com/joesan/csv-parser.git"))),
     publishMavenStyle := true,
-    isSnapshot := true,
+    isSnapshot := false,
     publishTo := {
       val nexus = "https://oss.sonatype.org/"
       if (isSnapshot.value)
