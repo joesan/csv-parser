@@ -10,14 +10,14 @@ All you have to specify is a case class that you want the CSV to parse into and 
 ## Getting Started
 
 These instructions will get you a copy of the project up and running on your local machine for development and testing purposes. 
-See deployment for notes on how to deploy the project on a live system.
 
 ### Prerequisites
 
 ```
 1. Install Java Version 8
-2. Install Scala Version 2.11.8
-3. Install IntelliJ - Latest community edition and then install the latest Scala plugin available
+2. Install Scala Version 2.12.7
+3. Install SBT version 1.2.8
+4. Install IntelliJ - Latest community edition and then install the latest Scala / SBT plugins available
 ```
 
 ### Installing
@@ -44,40 +44,25 @@ To run tests from the command line, do the following:
    
 2. Issue the following command:
    sbt clean test
-   
-   TODO... document
 ```
+
 To run any specific tests from within IntelliJ, simply right click the test that you wish you
 run and click Run
 
-### Running the application
+### Using the parser
 
-This application is built as a standalone jar using sbt assembly. To run the application,
-perform the following steps:
+This application is built as a standalone jar and published to the OSS Sonatype repos. To add the parser
+as a dependency to your project:
 
 ```
-1. Open a terminal and navigate to the project root folder 
-   
-2. Issue the following command:
-   sbt assembly
-   
-3. To run the jar file that was produced using the previous step: 
-   java -cp target/scala-2.11/XXX.jar path.to.your.MainClass args(0)
-   
-   Make sure the CSV file is located in the correct path
+libraryDependencies += "com.github.pathikrit" %% "better-files" % version
 ```
 
-## Deployment
-
-Nothing to deploy! Just add this project as a dependency and you are done!
+Latest `version`: [![Scaladex][scaladexImg]][scaladexLink]
 
 ## Built With
 
 * [SBT](http://www.scala-sbt.org/) - Scala Build Tool
-
-## Contributing
-
-[[TODO]] Add CONTRIBUTING.md to the project root
 
 ## Authors / Maintainers
 

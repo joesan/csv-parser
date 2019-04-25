@@ -28,7 +28,7 @@ class CSVParserTest extends FlatSpec {
   def meterDataSplitter(s: Seq[String]): Seq[String] = {
     Seq(s.head, s(1), s.drop(2).mkString(Comma.separator))
   }
-  
+
 //val withCustomConfig: Seq[Address] = reader parse "/Users/jothi/Projects/Private/scala-projects/csv-parser/address.csv" using CSVParserConfig(Pipe)
 //withCustomConfig foreach println
 /*
