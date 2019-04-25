@@ -110,14 +110,11 @@ object CSVParser extends App {
 
   def apply[A: CSVRowParser] = new CSVReader[A]
 
-  // TODO: We need this header to be resolved right here... otherwise it seems not to work! This is a dummy header just for testing!
-  implicit val headers: Seq[String] = Seq("a", "b", "c", "d")
-
   val meterDataReader = apply[MeterData]
-  val meterDataMapReader = apply[MeterDataAsMap]
+  //val meterDataMapReader = apply[MeterDataAsMap]
   val userReader = apply[User]
 
-  val meterDataSeq: Seq[MeterData] = meterDataReader parse "/Users/joesan/Projects/Private/scala-projects/csv-parser/meter.csv" using CSVParserConfig(withHeaders = true)
+  val meterDataSeq: Seq[MeterData] = meterDataReader parse "/Users/joesan/Projects/Private/scala-projects/csv-parser/src/test/resources/meter.csv" using CSVParserConfig(withHeaders = true)
   meterDataSeq foreach {
     case elem => println("************")
       println(elem)
@@ -127,9 +124,10 @@ object CSVParser extends App {
   //val meterDataMapSeq: Seq[MeterDataAsMap] = meterDataMapReader parse "/Users/joesan/Projects/Private/scala-projects/csv-parser/meter.csv" using CSVParserConfig(withHeaders = true)
   //meterDataMapSeq foreach println
 
-  val userSeq: Seq[User] = userReader parse "/Users/joesan/Projects/Private/scala-projects/csv-parser/user.csv" using CSVParserConfig(withHeaders = true)
+  val userSeq: Seq[User] = userReader parse "/Users/joesan/Projects/Private/scala-projects/csv-parser/src/test/resources/user.csv" using CSVParserConfig(withHeaders = true)
   userSeq foreach println
 
   //val withCustomConfig: Seq[Address] = reader parse "/Users/jothi/Projects/Private/scala-projects/csv-parser/address.csv" using CSVParserConfig(Pipe)
   //withCustomConfig foreach println
+
 }
