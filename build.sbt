@@ -6,6 +6,9 @@ resolvers ++= Seq(
   "Artima Maven Repository" at "http://repo.artima.com/releases"
 )
 
+useGpg := true
+credentials += Credentials(Path.userHome / ".sbt" / "sonatype_credential")
+
 logBuffered in Test := false
 
 libraryDependencies ++= Seq(

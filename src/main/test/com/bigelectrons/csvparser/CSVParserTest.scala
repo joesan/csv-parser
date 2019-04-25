@@ -11,8 +11,8 @@ class CSVParserTest extends FlatSpec {
     //val meterDataSeq: Seq[MeterData] = meterDataReader parse "/Users/joesan/Projects/Private/scala-projects/csv-parser/meter.csv" using (CSVParserConfig(withHeaders = true), fn = Some(meterDataSplitter))
     //meterDataSeq foreach println
 
-    //val meterDataMapSeq: Seq[MeterDataAsMap] = meterDataMapReader parse "/Users/joesan/Projects/Private/scala-projects/csv-parser/meter.csv" using (CSVParserConfig(withHeaders = true), fn = Some(meterDataSplitter))
-    //meterDataMapSeq foreach println
+    val meterDataMapSeq: Seq[MeterDataAsMap] = meterDataMapReader parse "/Users/joesan/Projects/Private/scala-projects/csv-parser/meter.csv" using (CSVParserConfig(withHeaders = true), fn = Some(meterDataSplitter))
+    meterDataMapSeq foreach println
 
     val result = CsvParser1[User].parseCSVFile("/Users/joesan/Projects/Private/scala-projects/csv-parser/user.csv")
     result foreach println
