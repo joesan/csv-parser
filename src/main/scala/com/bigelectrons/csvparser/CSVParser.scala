@@ -71,7 +71,7 @@ object CSVParser extends App {
             case runtimeClass
               if runtimeClass == "com.bigelectrons.csvparser.CSVParser.MeterData" || runtimeClass == "com.bigelectrons.csvparser.CSVParser.MeterDataAsMap" =>
               val splitted = justSplit
-              // we split as per our CSV data and in places where er mkString, we use a comma seperator
+              // we split as per our CSV data and in places where er mkString, we use a comma separator
               Seq(splitted.head, splitted(1), splitted.drop(2).mkString(Comma.seperator))
             // the default way to split is to just split a line
             case _ =>
@@ -110,6 +110,7 @@ object CSVParser extends App {
 
   def apply[A: CSVRowParser] = new CSVReader[A]
 
+
   val meterDataReader = apply[MeterData]
   //val meterDataMapReader = apply[MeterDataAsMap]
   val userReader = apply[User]
@@ -129,5 +130,6 @@ object CSVParser extends App {
 
   //val withCustomConfig: Seq[Address] = reader parse "/Users/jothi/Projects/Private/scala-projects/csv-parser/address.csv" using CSVParserConfig(Pipe)
   //withCustomConfig foreach println
+
 
 }

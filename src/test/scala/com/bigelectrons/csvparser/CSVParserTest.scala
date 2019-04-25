@@ -7,15 +7,18 @@ import org.scalatest.FlatSpec
 
 class CSVParserTest extends FlatSpec {
 
-  // TODO: We need this header to be resolved right here... otherwise it seems not to work! This is a dummy header just for testing!
-  //implicit val headers: Seq[String] = Seq("a", "b", "c", "d")
-
   "CSV Parser test" should "Parse CSV files to Case classes" in {
-    //val meterDataSeq: Seq[MeterData] = meterDataReader parse "/Users/joesan/Projects/Private/scala-projects/csv-parser/meter.csv" using (CSVParserConfig(withHeaders = true), fn = Some(meterDataSplitter))
-    //meterDataSeq foreach println
 
-    val meterDataMapSeq: Seq[MeterDataAsMap] = meterDataMapReader parse "/Users/joesan/Projects/Private/scala-projects/csv-parser/src/test/resources/meter.csv" using (CSVParserConfig(withHeaders = true))
-    meterDataMapSeq foreach println
+    // TODO: We need this header to be resolved right here... otherwise it seems not to work! This is a dummy header just for testing!
+    implicit val headers: Seq[String] = Seq("a", "b", "c", "d")
+
+    val meterDataReader = CSVParser.apply[MeterData]
+
+    val meterDataSeq: Seq[MeterData] = meterDataReader parse "/Users/joesan/Projects/Private/scala-projects/csv-parser/src/test/resources/meter.csv" using (CSVParserConfig(withHeaders = true))
+    meterDataSeq foreach println
+
+    //val meterDataMapSeq: Seq[MeterDataAsMap] = meterDataMapReader parse "/Users/joesan/Projects/Private/scala-projects/csv-parser/src/test/resources/meter.csv" using (CSVParserConfig(withHeaders = true))
+    //meterDataMapSeq foreach println
 
     //val result = CsvParser1[User].parseCSVFile("/Users/joesan/Projects/Private/scala-projects/csv-parser/user.csv")
     //result foreach println
@@ -33,10 +36,10 @@ class CSVParserTest extends FlatSpec {
   case class MeterDataAsMap(meterId: String, dateTime: DateTime, meterReadings: Map[String, Double])
 
   // TODO: We need this header to be resolved right here... otherwise it seems not to work! This is a dummy header just for testing!
-  implicit val headers: Seq[String] = Seq("a", "b", "c", "d")
+  //implicit val headers: Seq[String] = Seq("a", "b", "c", "d")
 
-  val meterDataReader = CSVParser.apply[MeterData]
-  val meterDataMapReader = CSVParser.apply[MeterDataAsMap]
+  //val meterDataReader = CSVParser.apply[MeterData]
+  //val meterDataMapReader = CSVParser.apply[MeterDataAsMap]
   val userReader = CSVParser.apply[User]
 
   // Custom logic to split MeterData
