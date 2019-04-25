@@ -55,10 +55,10 @@ This application is built as a standalone jar and published to the OSS Sonatype 
 as a dependency to your project:
 
 ```
-libraryDependencies += "com.github.pathikrit" %% "better-files" % version
+libraryDependencies += "com.bigelectrons.csvparser" %% "csv-parser" % version
 ```
 
-Latest `version`: [![Scaladex][scaladexImg]][scaladexLink]
+[![Latest version](https://index.scala-lang.org/bigelectrons/csv-parser/csv-parser/latest.svg)](https://index.scala-lang.org/bigelectrons/csv-parser/csv-parser)
 
 ## Built With
 
