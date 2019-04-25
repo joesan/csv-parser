@@ -69,6 +69,16 @@ object CSVParser extends App {
           // adding stuff here might be nuisance, then we could pass a function
           // which will contain the split logic!
           m.runtimeClass.getCanonicalName match {
+            case runtimeClass
+              if runtimeClass == "com.bigelectrons.csvparser.CSVParser.MeterData" || runtimeClass == "com.bigelectrons.csvparser.CSVParser.MeterDataAsMap" =>
+              val splitted = justSplit(line)
+              // we split as per our CSV data and in places where er mkString, we use a comma seperator
+              Seq(splitted.head, splitted(1), splitted.drop(2).mkString(Comma.seperator))
+            // the default way to split is to just split a line
+            case _ =>
+              justSplit(line)
+          } /*
+          m.runtimeClass.getCanonicalName match {
             case runtimeClass if caseClassCanonicalName.isDefined && fn.isDefined && runtimeClass == caseClassCanonicalName.get =>
               val splitted = justSplit(line)
 
@@ -78,7 +88,7 @@ object CSVParser extends App {
             // the default way to split is to just split a line by the separator in the CSV file
             case _ =>
               justSplit(line)
-          }
+          } */
         }
 
         @tailrec

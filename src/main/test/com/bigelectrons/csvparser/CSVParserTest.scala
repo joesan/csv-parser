@@ -11,14 +11,14 @@ class CSVParserTest extends FlatSpec {
     //val meterDataSeq: Seq[MeterData] = meterDataReader parse "/Users/joesan/Projects/Private/scala-projects/csv-parser/meter.csv" using (CSVParserConfig(withHeaders = true), fn = Some(meterDataSplitter))
     //meterDataSeq foreach println
 
-    val meterDataMapSeq: Seq[MeterDataAsMap] = meterDataMapReader parse "/Users/joesan/Projects/Private/scala-projects/csv-parser/meter.csv" using (CSVParserConfig(withHeaders = true), fn = Some(meterDataSplitter))
+    val meterDataMapSeq: Seq[MeterDataAsMap] = meterDataMapReader parse "/Users/joesan/Projects/Private/scala-projects/csv-parser/src/main/test/resources/meter.csv" using (CSVParserConfig(withHeaders = true), fn = Some(meterDataSplitter))
     meterDataMapSeq foreach println
 
-    val result = CsvParser1[User].parseCSVFile("/Users/joesan/Projects/Private/scala-projects/csv-parser/user.csv")
-    result foreach println
+    //val result = CsvParser1[User].parseCSVFile("/Users/joesan/Projects/Private/scala-projects/csv-parser/user.csv")
+    //result foreach println
 
-    val userSeq: Seq[User] = userReader parse "/Users/joesan/Projects/Private/scala-projects/csv-parser/user.csv" using CSVParserConfig(withHeaders = true)
-    userSeq foreach println
+    //val userSeq: Seq[User] = userReader parse "/Users/joesan/Projects/Private/scala-projects/csv-parser/user.csv" using CSVParserConfig(withHeaders = true)
+    //userSeq foreach println
   }
 
   // this is our case class that we will parse into
