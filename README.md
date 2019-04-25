@@ -60,16 +60,17 @@ libraryDependencies += "com.bigelectrons.csvparser" %% "csv-parser" % version
 
 Latest `version`: [![Latest version](https://index.scala-lang.org/bigelectrons/csv-parser/csv-parser/latest.svg)](https://index.scala-lang.org/bigelectrons/csv-parser/csv-parser)
 
-// TODO: Documentation pending 
+TODO: Documentation pending: 
+
 Once added as a dependency, you can use the parser as below:
 
     case class MeterData(meterId: String, dateTime: DateTime, meterReadings: Seq[Double])
     
     val canonicalName = Some(classOf[MeterData].getCanonicalName)
     val meterCsvParserCfg = CSVParserConfig(withHeaders = true, caseClassCanonicalName = canonicalName, splitterFn = Some(meterDataSplitter))
-    val meterCsv = "/Users/joesan/Projects/Private/scala-projects/csv-parser/src/test/resources/meter.csv"
-    val csvParser1 = CsvParser.apply[MeterData]
-    val meterDataSeq: Seq[MeterData] = csvParser1.parse(meterCsv, meterCsvParserCfg)
+    val meterCsv = "/path/to/csv/file/meterdata.csv"
+    val csvParser = CsvParser.apply[MeterData]
+    val meterDataSeq: Seq[MeterData] = csvParser.parse(meterCsv, meterCsvParserCfg)
 
 ## Built With
 
