@@ -2,9 +2,13 @@ package com.bigelectrons.joesan.csvparser
 
 import java.nio.file.Paths
 
-import org.joda.time.DateTime
+import org.joda.time.{DateTime, LocalTime}
 import com.bigelectrons.joesan.csvparser.CsvParser.CsvRowParser._
+import org.joda.time.format.DateTimeFormat
 import org.scalatest.FlatSpec
+import org.scalatest.concurrent.PatienceConfiguration.Interval
+
+import scala.util.Try
 
 
 class CSVParserTest extends FlatSpec {
@@ -24,6 +28,10 @@ class CSVParserTest extends FlatSpec {
   }
   val meterDataCaseClass = Some(classOf[MeterData].getCanonicalName)
 
+  // For mapping 50_Hertz_Sekundarregelleistung_2015.csv
+  val fmt = DateTimeFormat.forPattern("HH:mm")
+  case class SrlActivation(date: DateTime, start: LocalTime, end: LocalTime, positiveSRL: Double, negativeSRL: Double)
+
   // For mapping meter.csv
   // case class MeterDataAsMap(meterId: String, dateTime: DateTime, meterReadings: Map[String, Double])
 
@@ -41,6 +49,21 @@ class CSVParserTest extends FlatSpec {
     val meterParser = CsvParser.apply[MeterData]
     val meterDataSeq: Seq[MeterData] = meterParser.parse(meterCsv, meterCsvParserCfg)
     meterDataSeq foreach println
+  }
+
+  "CSV Parser test" should "Parse CSV files and skip lines as we specify" in {
+    // 50_Hertz_Sekundarregelleistung_2015.csv test (first 4 lines are unwanted, so we skip it)
+    val srlCsvParserCfg = CSVParserConfig(withHeaders = true, caseClassCanonicalName = userCaseClass, skipLines = 4)
+    val srlCsv = s"$csvBasePath/50_Hertz_Sekundarregelleistung_2015.csv"
+
+    // Since we do not have implicits for all possibilities, we provide one!
+    implicit def hhMMCSVConverter: CsvFieldReader[LocalTime] = (s: String) => Try {
+      fmt.parseLocalTime(s)
+    }
+
+    val srlParser = CsvParser.apply[SrlActivation]
+    val srlSeq: Seq[SrlActivation] = srlParser.parse(srlCsv, srlCsvParserCfg)
+    srlSeq foreach println
   }
 
 
