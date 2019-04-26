@@ -63,50 +63,8 @@ class CSVParserTest extends FlatSpec {
     val srlParser = CsvParser.apply[SrlActivation]
     val srlSeq: Seq[SrlActivation] = srlParser.parse(srlCsv, srlCsvParserCfg)
     println(srlSeq.length)
-    println(srlCsv.head)
-    println(srlCsv.last)
+    println(srlSeq.head)
+    println(srlSeq.last)
     //srlSeq foreach println
   }
-
-
-
-//val withCustomConfig: Seq[Address] = reader parse "/Users/jothi/Projects/Private/scala-projects/csv-parser/address.csv" using CSVParserConfig(Pipe)
-//withCustomConfig foreach println
-/*
-  readUsingAkkaStreams
-
-  def readUsingAkkaStreams = {
-
-    import java.io.File
-    import akka.stream.scaladsl._
-    import akka.actor.ActorSystem
-    import akka.stream.ActorMaterializer
-    import scala.concurrent.ExecutionContext.Implicits.global
-
-    implicit val system = ActorSystem("Sys")
-    implicit val materializer = ActorMaterializer()
-
-    val file = new File("/Users/jothi/Projects/Private/scala-projects/csv-parser/meter.csv")
-
-    val fileSource = FileIO.fromFile(file, 65536).via(Framing.delimiter(
-      ByteString("\n"),
-      maximumFrameLength = 65536,
-      allowTruncation = true))
-
-    val flow = fileSource.map(chunk => chunk.utf8String)
-
-    val result = flow.runWith(Sink.foreach{
-      case elem =>
-        println("START: ******* ")
-        println(elem)
-        println("END: ********")
-    })
-
-    result.onComplete {
-      case elem => elem match {
-        case Success(_) => system.terminate()
-        case Failure(fcku) => println(s"Something failed ${fcku.getMessage}")
-      }
-    }
-  }  */
 }

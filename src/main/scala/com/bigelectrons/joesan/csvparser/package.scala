@@ -16,7 +16,6 @@ package object csvparser {
     skipLines: Int = 0,
     caseClassCanonicalName: Option[String] = None,
     splitterFn: Option[Seq[String] => Seq[String]] = None,
-    withErrors: Boolean = false,
     withHeaders: Boolean = false
   )
 
