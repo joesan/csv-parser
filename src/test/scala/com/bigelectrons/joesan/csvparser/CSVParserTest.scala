@@ -53,8 +53,13 @@ class CSVParserTest extends FlatSpec {
 
   "CSV Parser test" should "Parse CSV files and skip lines as we specify" in {
     // 50_Hertz_Sekundarregelleistung_2015.csv test (first 4 lines are unwanted, so we skip it)
-    val srlCsvParserCfg = CSVParserConfig(withHeaders = true, caseClassCanonicalName = userCaseClass, skipLines = 4)
-    val srlCsv = s"$csvBasePath/50_Hertz_Sekundarregelleistung_2015.csv"
+    val srlCsvParserCfg = CSVParserConfig(
+      withHeaders = true,
+      caseClassCanonicalName = userCaseClass,
+      skipLines = 4,
+      separator = Semicolon
+    )
+    val srlCsv = s"$csvBasePath/50_Hertz_Sekundaerregelleistung_2015.csv"
 
     // Since we do not have implicits for all possibilities, we provide one!
     implicit def hhMMCSVConverter: CsvFieldReader[LocalTime] = (s: String) => Try {

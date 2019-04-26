@@ -14,6 +14,9 @@ trait CsvFieldReader[A] {
 }
 object CsvFieldReader {
 
+  // All supported DateFormat's, please add for additional formats!
+  val dateFormats = Seq("dd/MM/yyyy", "dd.MM.yyyy")
+
   def apply[A](implicit reader: CsvFieldReader[A]): CsvFieldReader[A] = reader
 
   implicit def stringCSVFieldConverter: CsvFieldReader[String] = (s: String) => Success(s)
@@ -29,7 +32,18 @@ object CsvFieldReader {
   }
 
   implicit def dateTimeCSVConverter: CsvFieldReader[DateTime] = (s: String) => Try {
-    DateTimeFormat.forPattern("dd/MM/yyyy").parseDateTime(s)
+    dateFormats.map {
+      format =>
+        try {
+          Some(DateTimeFormat.forPattern(format).parseDateTime(s))
+        } catch {
+          case _: IllegalArgumentException =>
+            println(s"Date format $format incompatible, will try the next available format")
+            None
+        }
+    }.distinct.collectFirst {
+      case elem if elem.isDefined => elem.get
+    }.get
   }
 
   implicit def seqCSVFieldConverter: CsvFieldReader[Seq[Double]] = (s: String) => Try {
