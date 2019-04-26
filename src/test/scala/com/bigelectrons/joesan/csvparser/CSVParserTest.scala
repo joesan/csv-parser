@@ -29,7 +29,6 @@ class CSVParserTest extends FlatSpec {
   val meterDataCaseClass = Some(classOf[MeterData].getCanonicalName)
 
   // For mapping 50_Hertz_Sekundarregelleistung_2015.csv
-  val fmt = DateTimeFormat.forPattern("HH:mm")
   case class SrlActivation(date: DateTime, start: LocalTime, end: LocalTime, positiveSRL: Double, negativeSRL: Double)
 
   // For mapping meter.csv
@@ -60,11 +59,6 @@ class CSVParserTest extends FlatSpec {
       separator = Semicolon
     )
     val srlCsv = s"$csvBasePath/50_Hertz_Sekundaerregelleistung_2015.csv"
-
-    // Since we do not have implicits for all possibilities, we provide one!
-    implicit def hhMMCSVConverter: CsvFieldReader[LocalTime] = (s: String) => Try {
-      fmt.parseLocalTime(s)
-    }
 
     val srlParser = CsvParser.apply[SrlActivation]
     val srlSeq: Seq[SrlActivation] = srlParser.parse(srlCsv, srlCsvParserCfg)

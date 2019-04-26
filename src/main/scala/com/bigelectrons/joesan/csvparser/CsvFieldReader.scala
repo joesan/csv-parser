@@ -1,6 +1,6 @@
 package com.bigelectrons.joesan.csvparser
 
-import org.joda.time.DateTime
+import org.joda.time.{DateTime, LocalTime}
 import org.joda.time.format.DateTimeFormat
 
 import scala.util.{Success, Try}
@@ -29,6 +29,10 @@ object CsvFieldReader {
     case "yes" | "1" => Success(true)
     case "no" | "0" => Success(false)
     case _ => Success(false) // I do not understand what else it could be, so falsify everything else!!
+  }
+
+  implicit def hhMMCSVConverter: CsvFieldReader[LocalTime] = (s: String) => Try {
+    DateTimeFormat.forPattern("HH:mm").parseLocalTime(s)
   }
 
   implicit def dateTimeCSVConverter: CsvFieldReader[DateTime] = (s: String) => Try {
