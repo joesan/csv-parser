@@ -68,7 +68,10 @@ class CSVParserTest extends FlatSpec {
 
     val srlParser = CsvParser.apply[SrlActivation]
     val srlSeq: Seq[SrlActivation] = srlParser.parse(srlCsv, srlCsvParserCfg)
-    srlSeq foreach println
+    println(srlSeq.length)
+    println(srlCsv.head)
+    println(srlCsv.last)
+    //srlSeq foreach println
   }
 
 

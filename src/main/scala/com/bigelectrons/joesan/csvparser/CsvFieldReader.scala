@@ -38,7 +38,6 @@ object CsvFieldReader {
           Some(DateTimeFormat.forPattern(format).parseDateTime(s))
         } catch {
           case _: IllegalArgumentException =>
-            println(s"Date format $format incompatible, will try the next available format")
             None
         }
     }.distinct.collectFirst {
