@@ -70,7 +70,7 @@ object CsvParser {
                     case Success(succ) =>
                       parse(acc ++ Seq(succ), lines, lines.hasNext)
                     case Failure(fail) =>
-                      println(s"some shit happened ${fail.getMessage} when parsing row $nextLine")
+                      println(s"Error << ${fail.getMessage} >> when parsing row << $nextLine >>")
                       // Currently ignoring the exceptions...
                       parse(acc, lines, lines.hasNext)
                   }

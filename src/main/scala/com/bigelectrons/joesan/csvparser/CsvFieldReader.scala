@@ -15,9 +15,12 @@ trait CsvFieldReader[A] {
 object CsvFieldReader {
 
   // All supported DateFormat's, please add for any additional formats needed!
-  val dateFormats = Seq("dd/MM/yyyy", "dd.MM.yyyy")
+  private val dateTimePatterns = Seq(
+    DateTimeFormat.forPattern("dd/MM/yyyy"),
+    DateTimeFormat.forPattern("dd.MM.yyyy")
+  )
   // All supported Hour formats, please add for any additional formats needed!
-  val hourFormats = Seq("HH:mm")
+  private val hourMinutesPattern = Seq(DateTimeFormat.forPattern("HH:mm"))
 
   def apply[A](implicit reader: CsvFieldReader[A]): CsvFieldReader[A] = reader
 
@@ -34,31 +37,19 @@ object CsvFieldReader {
   }
 
   implicit def hhMMCSVConverter: CsvFieldReader[LocalTime] = (s: String) => Try {
-    hourFormats.map {
-      format =>
-        try {
-          Some(DateTimeFormat.forPattern(format).parseLocalTime(s))
-        } catch {
-          case _: IllegalArgumentException =>
-            None
-        }
-    }.distinct.collectFirst {
-      case elem if elem.isDefined => elem.get
-    }.get
+    val (successes, failures) = hourMinutesPattern.map(fmt => Try(fmt.parseLocalTime(s))).partition(_.isSuccess)
+    if (successes.nonEmpty)
+      successes.head.get
+    else
+      failures.head.get
   }
 
   implicit def dateTimeCSVConverter: CsvFieldReader[DateTime] = (s: String) => Try {
-    dateFormats.map {
-      format =>
-        try {
-          Some(DateTimeFormat.forPattern(format).parseDateTime(s))
-        } catch {
-          case _: IllegalArgumentException =>
-            None
-        }
-    }.distinct.collectFirst {
-      case elem if elem.isDefined => elem.get
-    }.get
+    val (successes, failures) = dateTimePatterns.map(fmt => Try(fmt.parseDateTime(s))).partition(_.isSuccess)
+    if (successes.nonEmpty)
+      successes.head.get
+    else
+      failures.head.get
   }
 
   implicit def seqCSVFieldConverter: CsvFieldReader[Seq[Double]] = (s: String) => Try {
