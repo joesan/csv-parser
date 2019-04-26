@@ -1,5 +1,7 @@
 package com.bigelectrons.joesan.csvparser
 
+import java.nio.file.Paths
+
 import org.joda.time.DateTime
 import com.bigelectrons.joesan.csvparser.CsvParser.CsvRowParser._
 import org.scalatest.FlatSpec
@@ -7,27 +9,41 @@ import org.scalatest.FlatSpec
 
 class CSVParserTest extends FlatSpec {
 
-  "CSV Parser test" should "Parse CSV files to Case classes" in {
-    val canonicalName = Some(classOf[MeterData].getCanonicalName)
-    val meterCsvParserCfg = CSVParserConfig(withHeaders = true, caseClassCanonicalName = canonicalName, splitterFn = Some(meterDataSplitter))
-    val meterCsv = "/Users/joesan/Projects/Private/scala-projects/csv-parser/src/test/resources/meter.csv"
-    val csvParser1 = CsvParser.apply[MeterData]
-    val meterDataSeq: Seq[MeterData] = csvParser1.parse(meterCsv, meterCsvParserCfg)
+  // The base path where all the CSV files are located for unit testing purposes
+  private val csvBasePath = Paths.get("src","test","resources").toAbsolutePath.toString
+
+  // For mapping user.csv
+  case class User(id: Int, name: String, age: Int, weight: Double)
+  val userCaseClass = Some(classOf[User].getCanonicalName)
+
+  // For mapping meter.csv
+  case class MeterData(meterId: String, dateTime: DateTime, meterReadings: Seq[Double])
+  // Custom logic to split MeterData row
+  def meterDataSplitter(line: Seq[String]): Seq[String] = {
+    Seq(line.head, line(1), line.drop(2).mkString(Comma.separator))
+  }
+  val meterDataCaseClass = Some(classOf[MeterData].getCanonicalName)
+
+  // For mapping meter.csv
+  // case class MeterDataAsMap(meterId: String, dateTime: DateTime, meterReadings: Map[String, Double])
+
+  "CSV Parser test" should "Parse CSV files to their appropriate Case classes" in {
+    // user.csv test
+    val userCsvParserCfg = CSVParserConfig(withHeaders = true, caseClassCanonicalName = userCaseClass)
+    val userCsv = s"$csvBasePath/user.csv"
+    val userParser = CsvParser.apply[User]
+    val userSeq: Seq[User] = userParser.parse(userCsv, userCsvParserCfg)
+    userSeq foreach println
+
+    // meter.csv test
+    val meterCsvParserCfg = CSVParserConfig(withHeaders = true, caseClassCanonicalName = meterDataCaseClass, splitterFn = Some(meterDataSplitter))
+    val meterCsv = s"$csvBasePath/meter.csv"
+    val meterParser = CsvParser.apply[MeterData]
+    val meterDataSeq: Seq[MeterData] = meterParser.parse(meterCsv, meterCsvParserCfg)
     meterDataSeq foreach println
   }
 
-  // this is our case class that we will parse into
-  case class User(id: Int, firstName: String, lastName: String)
-  case class Address(firstName: String, lastName: String, number: Int)
 
-  // for... [TODO: use proper interval format]
-  case class MeterData(meterId: String, dateTime: DateTime, meterReadings: Seq[Double])
-  case class MeterDataAsMap(meterId: String, dateTime: DateTime, meterReadings: Map[String, Double])
-
-  // Custom logic to split MeterData
-  def meterDataSplitter(s: Seq[String]): Seq[String] = {
-    Seq(s.head, s(1), s.drop(2).mkString(Comma.separator))
-  }
 
 //val withCustomConfig: Seq[Address] = reader parse "/Users/jothi/Projects/Private/scala-projects/csv-parser/address.csv" using CSVParserConfig(Pipe)
 //withCustomConfig foreach println
