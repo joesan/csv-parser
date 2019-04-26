@@ -1,7 +1,7 @@
-package com.bigelectrons.csvparser
+package com.bigelectrons.joesan.csvparser
 
 import org.joda.time.DateTime
-import com.bigelectrons.csvparser.CsvParser.CsvRowParser._
+import com.bigelectrons.joesan.csvparser.CsvParser.CsvRowParser._
 import org.scalatest.FlatSpec
 
 

@@ -1,4 +1,4 @@
-package com.bigelectrons.csvparser
+package com.bigelectrons.joesan.csvparser
 
 import org.joda.time.DateTime
 import org.joda.time.format.DateTimeFormat
