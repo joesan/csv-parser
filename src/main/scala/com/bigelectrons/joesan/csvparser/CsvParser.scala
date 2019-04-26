@@ -66,13 +66,13 @@ object CsvParser {
               splitByRuntimeType(nextLine) match {
                 case Nil   => parse(acc, lines, lines.hasNext)
                 case elems =>
-                  // obnoxious code to follow!
                   CsvRowParser[B].parse(elems) match {
-                    case Success(suck) =>
-                      parse(acc ++ Seq(suck), lines, lines.hasNext)
-                    case Failure(ex) =>
-                      println(s"some shit happened ${ex.getMessage}")
-                      acc // currently ignoring the exceptions...
+                    case Success(succ) =>
+                      parse(acc ++ Seq(succ), lines, lines.hasNext)
+                    case Failure(fail) =>
+                      println(s"some shit happened ${fail.getMessage} when parsing row $nextLine")
+                      // Currently ignoring the exceptions...
+                      parse(acc, lines, lines.hasNext)
                   }
               }
             }

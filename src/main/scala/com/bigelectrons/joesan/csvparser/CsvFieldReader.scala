@@ -14,8 +14,10 @@ trait CsvFieldReader[A] {
 }
 object CsvFieldReader {
 
-  // All supported DateFormat's, please add for additional formats!
+  // All supported DateFormat's, please add for any additional formats needed!
   val dateFormats = Seq("dd/MM/yyyy", "dd.MM.yyyy")
+  // All supported Hour formats, please add for any additional formats needed!
+  val hourFormats = Seq("HH:mm")
 
   def apply[A](implicit reader: CsvFieldReader[A]): CsvFieldReader[A] = reader
 
@@ -32,7 +34,17 @@ object CsvFieldReader {
   }
 
   implicit def hhMMCSVConverter: CsvFieldReader[LocalTime] = (s: String) => Try {
-    DateTimeFormat.forPattern("HH:mm").parseLocalTime(s)
+    hourFormats.map {
+      format =>
+        try {
+          Some(DateTimeFormat.forPattern(format).parseLocalTime(s))
+        } catch {
+          case _: IllegalArgumentException =>
+            None
+        }
+    }.distinct.collectFirst {
+      case elem if elem.isDefined => elem.get
+    }.get
   }
 
   implicit def dateTimeCSVConverter: CsvFieldReader[DateTime] = (s: String) => Try {
