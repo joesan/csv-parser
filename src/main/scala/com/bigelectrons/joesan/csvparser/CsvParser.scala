@@ -26,13 +26,6 @@ object CsvParser {
 
     def parse(path: String, cfg: CSVParserConfig)(implicit m: scala.reflect.Manifest[A]): Seq[A] = ReaderWithFile[A](path).doParse(cfg)
 
-    object ReaderWithFile {
-      // This implicit conversion will be applied for cases where the caller does not
-      // specify any parser configuration, so we resort to using a default which is a CSV file with
-      // comma separated!
-      implicit def parser2parsed[B](reader: ReaderWithFile[B])(implicit m: scala.reflect.Manifest[B]): Seq[B] = reader.doParse(defaultParserCfg)
-    }
-
     case class ReaderWithFile[B: CsvRowParser : Manifest](path: String) {
 
       def doParse(cfg: CSVParserConfig)(implicit m: scala.reflect.Manifest[B]): Seq[B] = {
@@ -58,25 +51,24 @@ object CsvParser {
         }
 
         @tailrec
-        def parse(acc: Seq[B], lines: Iterator[String], hasMoreRows: Boolean): Seq[B] = {
-          if (hasMoreRows) {
+        def parse(acc: Seq[B], lines: Iterator[String]): Seq[B] = {
+          if (lines.hasNext) {
             val nextLine = lines.next
             // if we do not have anything in the current line, just skip and proceed
             if (nextLine.nonEmpty) {
               splitByRuntimeType(nextLine) match {
-                case Nil   => parse(acc, lines, lines.hasNext)
+                case Nil   => parse(acc, lines)
                 case elems =>
                   CsvRowParser[B].parse(elems) match {
                     case Success(succ) =>
-                      parse(acc ++ Seq(succ), lines, lines.hasNext)
-                    case Failure(fail) =>
+                      parse(acc ++ Seq(succ), lines)
+                    case Failure(fail) => // Currently ignoring the exceptions...
                       println(s"Error << ${fail.getMessage} >> when parsing row << $nextLine >>")
-                      // Currently ignoring the exceptions...
-                      parse(acc, lines, lines.hasNext)
+                      parse(acc, lines)
                   }
               }
             }
-            else parse(acc, lines, lines.hasNext)
+            else parse(acc, lines)
           }
           else acc
         }
@@ -86,7 +78,7 @@ object CsvParser {
           case Success(bufferedSource) =>
             val lines = bufferedSource.getLines().drop(cfg.skipLines)
             implicit val headers: Seq[String] = lines.next.split(cfg.separator.separator).toList.map(_.trim)
-            val elements = parse(Seq.empty[B], lines, lines.hasNext)
+            val elements = parse(Seq.empty[B], lines)
             // Let us not leak!
             bufferedSource.close()
             elements
