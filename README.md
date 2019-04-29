@@ -11,7 +11,7 @@ All you have to specify is a case class that you want the CSV to parse into and 
 
 These instructions will get you a copy of the project up and running on your local machine for development and testing purposes. 
 
-### Prerequisites
+### Pre-requisites
 
 ```
 1. Install Java Version 8
