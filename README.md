@@ -60,8 +60,6 @@ libraryDependencies += "com.bigelectrons.csvparser" %% "csv-parser" % version
 
 Latest `version`: [![Latest version](https://index.scala-lang.org/bigelectrons/csv-parser/csv-parser/latest.svg)](https://index.scala-lang.org/bigelectrons/csv-parser/csv-parser)
 
-TODO: Documentation pending: 
-
 Once added as a dependency, you can use the parser as below:
 
     case class MeterData(meterId: String, dateTime: DateTime, meterReadings: Seq[Double])
